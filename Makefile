@@ -1,10 +1,16 @@
 all: app web
 app: fonts icons
 	flutter build apk
+BASEHREF=/demo/
 web:
-	flutter build web --base-href='/demo/' --release
+	flutter build web --base-href=$(BASEHREF) --release
 	rm -rf website/demo/
 	cp -p -r build/web/ website/demo/
+gh-pages:
+	flutter clean
+	make BASEHREF=/everest/demo/ web
+	# assumes worktree gh-pages is checked out in ./gh-pages/
+	cd gh-pages && git rm -rf . --ignore-unmatch && cp -p -r ../website/* . && git add . && git commit -m "update gh-pages"
 host:
 	cd website && python -m http.server 8000
 run: fonts icons
@@ -39,4 +45,4 @@ build/upstream/Noto_Sans_Math.zip:
 	wget -O build/upstream/Noto_Sans_Math.zip https://fonts.google.com/download?family=Noto%20Sans%20Math
 .INTERMEDIATE: build/upstream/Noto_Sans_Math.zip
 
-.PHONY: all app web host run test zip fonts icons
+.PHONY: all app web gh-pages host run test zip fonts icons
