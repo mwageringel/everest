@@ -119,6 +119,9 @@ Widget questionsStatusWidget(BuildContext context, QuestionsStatus status, bool 
   );
 }
 
+final _listTileRadius = BorderRadius.circular(20);
+final _listTileRounded = RoundedRectangleBorder(borderRadius: _listTileRadius);
+
 // TODO turn function into widget
 Widget questionsWidget(BuildContext context, List<Question> questions, bool isActive, int focussedQuestion, bool animateStatusWrong, {required void Function(int) onTap}) {
   final status = jointStatus(questions);  // TODO cache this?
@@ -154,12 +157,23 @@ Widget questionsWidget(BuildContext context, List<Question> questions, bool isAc
         }
       }
       t ??= Text(q, style: _biggerFont);
-      return ListTile(title: t, trailing: (i == questions.length - 1) ? questionsStatusWidget(context, status, animateStatusWrong && isActive) : null, onTap: () => onTap(i));
+      return ListTile(
+        title: t,
+        trailing: (i == questions.length - 1) ? questionsStatusWidget(context, status, animateStatusWrong && isActive) : null,
+        shape: _listTileRounded,
+        onTap: () => onTap(i)
+      );
     }).toList(),
   );
   // Here we are careful to keep the widget tree the same regardless of whether widget is active,
   // since otherwise the status switch animation does not show.
-  return Container(color: isActive ? Theme.of(context).highlightColor : Theme.of(context).scaffoldBackgroundColor, child: c);
+  return Container(
+    decoration: ShapeDecoration(
+      color: isActive ? Theme.of(context).highlightColor : null,  // makes hover work on non-selected tiles and background color in pure black mode
+      shape: _listTileRounded,  // TODO for pure black, add (side: const BorderSide(color: ...)),
+    ),
+    child: c
+  );
 }
 
 class BouncingWidget extends StatefulWidget {
@@ -472,6 +486,7 @@ class ExamsScreen extends StatelessWidget {
                         ? BouncingWidget(Icon(Icons.adaptive.arrow_forward))
                         : Icon(unlocked ? Icons.adaptive.arrow_forward : Icons.lock),
                       enabled: unlocked,
+                      shape: _listTileRounded,
                       onTap: () {
                         if (levelIdx <= game.levelsUnlocked || debugUnlockAll) {
                           _pushExercises(context, label, game, levelIdx);
