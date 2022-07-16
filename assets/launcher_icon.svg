@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1024"
+   height="1024"
+   viewBox="0 0 60.235294 60.235294"
+   version="1.1"
+   id="svg1791"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="launcher_icon.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1793"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="523.96612"
+     inkscape:cy="548.00776"
+     inkscape:window-width="1918"
+     inkscape:window-height="1078"
+     inkscape:window-x="1280"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1788">
+    <rect
+       x="170.52023"
+       y="338.1077"
+       width="88.363831"
+       height="161.03641"
+       id="rect1481" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-504.87587,-532.57763)">
+    <path
+       style="fill:#3f51b5;fill-opacity:1;stroke-width:0.285539"
+       d="m 509.01706,581.42615 20.13468,-38.489 8.68432,14.67487 4.08111,-7.04632 18.78881,30.82224 z"
+       id="path63"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       transform="matrix(0.31140734,0,0,0.32847661,468.13014,431.92563)"
+       id="text1479"
+       style="font-size:128px;white-space:pre;shape-inside:url(#rect1481);shape-padding:0.241668;display:inline;fill:#f2f2f2;fill-opacity:1"><tspan
+         x="170.76172"
+         y="454.72856"
+         id="tspan965"><tspan
+           style="font-family:'Libertinus Math';-inkscape-font-specification:'Libertinus Math'"
+           id="tspan963">≡</tspan></tspan></text>
+    <path
+       style="fill:#000000;fill-opacity:0.12;stroke-width:0.0634825"
+       d="m 537.8353,557.6165 -12.8523,23.79778 26.95684,-0.02 z"
+       id="path2039"
+       sodipodi:nodetypes="cccc" />
+  </g>
+</svg>
