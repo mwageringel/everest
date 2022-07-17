@@ -38,8 +38,9 @@ class RotateCurve extends Curve {
 final _rotateCurve = RotateCurve();
 
 class StatusIcon extends StatefulWidget {
-  final Widget child;
-  const StatusIcon(this.child, {Key? key}) : super(key: key);
+  final QuestionsStatus status;
+  final bool animateStatusWrong;
+  const StatusIcon(this.status, {required this.animateStatusWrong, Key? key}) : super(key: key);
 
   @override
   State<StatusIcon> createState() => _StatusIconState();
@@ -68,7 +69,7 @@ class _StatusIconState extends State<StatusIcon>
   }
 
   Future<void> _runAnimation() async {
-    try {  // workaround for intermediate disposal of _controller
+    try {  // circumvents intermediate disposal of _controller
       _controller.reset();  // stops previous animation if still in progress
       await _controller.forward().orCancel;
       await _controller.reverse().orCancel;
@@ -77,10 +78,22 @@ class _StatusIconState extends State<StatusIcon>
 
   @override
   Widget build(BuildContext context) {
-    _runAnimation();
-    return SlideTransition(
+    if (widget.animateStatusWrong && widget.status == QuestionsStatus.wrong) {
+      _runAnimation();
+    }
+    Widget icon = SlideTransition(
       position: _animation,
-      child: widget.child,
+      child: questionsStatusIcon(context, widget.status),
+    );
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 330),
+      transitionBuilder: (Widget child, Animation<double> animation) => VerticalScaleTransition(child, animation),
+      switchInCurve: _rotateCurve,
+      switchOutCurve: _rotateCurve,
+      child: Container(
+        key: ValueKey<QuestionsStatus>(widget.status),
+        child: icon,
+      ),
     );
   }
 }
@@ -112,23 +125,6 @@ class _VerticalScaleTransitionState extends State<VerticalScaleTransition> {
     widget.animation.removeListener(_update);
     super.dispose();
   }
-}
-
-Widget questionsStatusWidget(BuildContext context, QuestionsStatus status, bool animateStatusWrong) {
-  Widget icon = questionsStatusIcon(context, status);
-  if (animateStatusWrong && status == QuestionsStatus.wrong) {
-    icon = StatusIcon(icon);
-  }
-  return AnimatedSwitcher(
-    duration: const Duration(milliseconds: 330),
-    transitionBuilder: (Widget child, Animation<double> animation) => VerticalScaleTransition(child, animation),
-    switchInCurve: _rotateCurve,
-    switchOutCurve: _rotateCurve,
-    child: Container(
-      key: ValueKey<QuestionsStatus>(status),
-      child: icon,
-    ),
-  );
 }
 
 final _listTileRadius = BorderRadius.circular(20);
@@ -181,7 +177,7 @@ class QuestionsWidget extends StatelessWidget {
         t ??= Text(q, style: _biggerFont);
         return ListTile(
           title: t,
-          trailing: (i == questions.length - 1) ? questionsStatusWidget(context, status, animateStatusWrong) : null,
+          trailing: (i == questions.length - 1) ? StatusIcon(status, animateStatusWrong: animateStatusWrong) : null,
           shape: _listTileRounded,
           onTap: () => onTap(i)
         );
