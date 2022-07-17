@@ -333,22 +333,29 @@ class LevelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<Game, Level>(builder: (context, game, l, child) {
-      return ListView(
-        padding: listPadding,
-        children: interleave(
-          l.exercise.fullQuestions().map((es) => InkWell(
-            child: QuestionsWidget(es.map((e) => e.value).toList(),
-              isActive: es[0].key <= l.exercise.activeIndex && es.last.key >= l.exercise.activeIndex,
-              focussedQuestion: l.exercise.activeIndex - es[0].key,
-              animateStatusWrong: game.doStatusAnimation(),
-              onTap: (j) => game.levelTapped(es[0].key + j, inExam: false),
-            ),
-          )),
-          divider(context),
-        ).toList(),
-      );
-    });
+    final level = Provider.of<Level>(context);
+    return ListView(
+      padding: listPadding,
+      children: interleave(
+        level.exercise.fullQuestions().map((es) => Selector<Level, bool>(
+          // selector ensures that questions widget is only rebuilt when isActive is set or changes
+          selector: (context, level) => es[0].key <= level.exercise.activeIndex && es.last.key >= level.exercise.activeIndex,  // isActive
+          shouldRebuild: (bool oldIsActive, bool isActive) => oldIsActive || isActive,
+          builder: (context, isActive, child) {
+            final game = Provider.of<Game>(context);  // changes often, so consuming it inside selector avoids triggering rebuilds
+            return InkWell(
+              child: QuestionsWidget(es.map((e) => e.value).toList(),
+                isActive: isActive,
+                focussedQuestion: level.exercise.activeIndex - es[0].key,  // TODO use level and game from different context?
+                animateStatusWrong: game.doStatusAnimation(),
+                onTap: (j) => game.levelTapped(es[0].key + j, inExam: false),
+              ),
+            );
+          },
+        )),
+        divider(context),
+      ).toList(),
+    );
   }
 }
 
@@ -488,11 +495,14 @@ class ExamsScreen extends StatelessWidget {
         ],
       ),
       body: withKeyboard(context, Expanded(
-        child: Consumer<Game>(builder: (context, game, child) {  // TODO too large widget?
-          return ListView.builder(
-            padding: listPadding,
-            itemCount: game.levels.length,
-            itemBuilder: (context, levelIdx) {
+        child: ListView.builder(
+          padding: listPadding,
+          itemCount: Provider.of<Game>(context, listen: false).levels.length,  // as number of levels is constant, not listening avoids unnecessary rebuilds
+          itemBuilder: (context, levelIdx) => Selector<Game, bool>(
+            selector: (context, game) => levelIdx == game.activeLevel && game.inExamScreen,  // isActive
+            shouldRebuild: (bool oldIsActive, bool isActive) => oldIsActive || isActive,
+            builder: (_, isActive, child) {  // we do not use the inner context since world changes (such as theme) would not trigger a rebuild
+              final game = Provider.of<Game>(context, listen: false);  // listening not needed, since selector already does
               assert((levelIdx > 0) ^ game.levels[levelIdx].exercise.questions.isEmpty);
               final level = game.levels[levelIdx];
               final label = 'Level $levelIdx';
@@ -519,7 +529,7 @@ class ExamsScreen extends StatelessWidget {
                       if (levelIdx > 0) divider(context),
                       InkWell(
                         child: QuestionsWidget(level.exam.questions,
-                          isActive: levelIdx == game.activeLevel,
+                          isActive: isActive,
                           focussedQuestion: level.exam.activeIndex,
                           animateStatusWrong: game.doStatusAnimation(),
                           onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx)
@@ -538,8 +548,8 @@ class ExamsScreen extends StatelessWidget {
                 ),
               );
             },
-          );
-        }),
+          ),
+        ),
       )),
     );
     return Consumer<Game>(builder: (context, game, child) =>
