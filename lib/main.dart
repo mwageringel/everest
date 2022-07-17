@@ -89,17 +89,29 @@ class VerticalScaleTransition extends StatefulWidget {
   final Widget child;
   final Animation<double> animation;
   const VerticalScaleTransition(this.child, this.animation, {Key? key}) : super(key: key);
-  @override State<VerticalScaleTransition> createState() {
-    final s = _VerticalScaleTransitionState();
-    s.scaleY = animation.value; // may be 1.0 or 0.0 depending on whether this is initial creation or animated switch, avoids flickering
-    animation.addListener(s.update);
-    return s;
-  }
+  @override createState() => _VerticalScaleTransitionState();
 }
 class _VerticalScaleTransitionState extends State<VerticalScaleTransition> {
   double scaleY = 1;
-  void update() => setState(() => scaleY = widget.animation.value);
+  void _update() => setState(() => scaleY = widget.animation.value);
   @override Widget build(BuildContext context) => Transform.scale(scaleY: scaleY, child: widget.child);
+  @override void initState() {
+    super.initState();
+    scaleY = widget.animation.value;  // may be 1.0 or 0.0 depending on whether this is initial creation or animated switch, avoids flickering
+    widget.animation.addListener(_update);
+  }
+  @override void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.animation, widget.animation)) {
+      oldWidget.animation.removeListener(_update);
+      scaleY = widget.animation.value;
+      widget.animation.addListener(_update);
+    }
+  }
+  @override void dispose() {
+    widget.animation.removeListener(_update);
+    super.dispose();
+  }
 }
 
 Widget questionsStatusWidget(BuildContext context, QuestionsStatus status, bool animateStatusWrong) {
