@@ -1,7 +1,13 @@
+/ios/
+/windows/
+/gh-pages/
 *.sage.py
 /fonts/
 /website/demo/
 *.png
+*.ico
+*.apk
+*.apk.sha1
 
 # Miscellaneous
 *.class
