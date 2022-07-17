@@ -134,58 +134,69 @@ Widget questionsStatusWidget(BuildContext context, QuestionsStatus status, bool 
 final _listTileRadius = BorderRadius.circular(20);
 final _listTileRounded = RoundedRectangleBorder(borderRadius: _listTileRadius);
 
-// TODO turn function into widget
-Widget questionsWidget(BuildContext context, List<Question> questions, bool isActive, int focussedQuestion, bool animateStatusWrong, {required void Function(int) onTap}) {
-  final status = jointStatus(questions);  // TODO cache this?
-  final c = Column(
-    children: Iterable.generate(questions.length).map((i) {
-      // the following is more direct than expr.str() and works since all variables appear exactly once from left to right
-      final q = questions[i].inputs.fold<String>(questions[i].q, (q, s) => q.replaceFirst('?', s));
-      Widget? t;
-      if (isActive && i == focussedQuestion) {
-        var j = q.indexOf('?');
-        if (j == -1) {
-          j = questions[i].q.indexOf('?'); // relies on all replacements being single characters
-        }
-        if (j != -1) {
-          t = Text.rich(TextSpan(
-            text: q.substring(0, j),
-            style: _biggerFont,
-            children: [
-              // TextSpan(text: q.substring(j, j+1), style: TextStyle(backgroundColor: Theme.of(context).focusColor)),
-              WidgetSpan( // with padding
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).focusColor,
-                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+class QuestionsWidget extends StatelessWidget {
+  final List<Question> questions;
+  final bool isActive;
+  final int focussedQuestion;
+  final bool animateStatusWrong;
+  final void Function(int) onTap;
+  const QuestionsWidget(this.questions,
+    {required this.isActive, required this.focussedQuestion, required bool animateStatusWrong, required this.onTap, Key? key}):
+    animateStatusWrong = animateStatusWrong && isActive, super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final status = jointStatus(questions);  // TODO cache this?
+    final c = Column(
+      children: Iterable.generate(questions.length).map((i) {
+        // the following is more direct than expr.str() and works since all variables appear exactly once from left to right
+        final q = questions[i].inputs.fold<String>(questions[i].q, (q, s) => q.replaceFirst('?', s));
+        Widget? t;
+        if (isActive && i == focussedQuestion) {
+          var j = q.indexOf('?');
+          if (j == -1) {
+            j = questions[i].q.indexOf('?'); // relies on all replacements being single characters
+          }
+          if (j != -1) {
+            t = Text.rich(TextSpan(
+              text: q.substring(0, j),
+              style: _biggerFont,
+              children: [
+                // TextSpan(text: q.substring(j, j+1), style: TextStyle(backgroundColor: Theme.of(context).focusColor)),
+                WidgetSpan( // with padding
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).focusColor,
+                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                    ),
+                    child: Text(q.substring(j, j+1), style: _biggerFont),
                   ),
-                  child: Text(q.substring(j, j+1), style: _biggerFont),
                 ),
-              ),
-              TextSpan(text: q.substring(j+1)),
-            ],
-          ));
+                TextSpan(text: q.substring(j+1)),
+              ],
+            ));
+          }
         }
-      }
-      t ??= Text(q, style: _biggerFont);
-      return ListTile(
-        title: t,
-        trailing: (i == questions.length - 1) ? questionsStatusWidget(context, status, animateStatusWrong && isActive) : null,
-        shape: _listTileRounded,
-        onTap: () => onTap(i)
-      );
-    }).toList(),
-  );
-  // Here we are careful to keep the widget tree the same regardless of whether widget is active,
-  // since otherwise the status switch animation does not show.
-  return Container(
-    decoration: ShapeDecoration(
-      color: isActive ? Theme.of(context).highlightColor : null,  // makes hover work on non-selected tiles and background color in pure black mode
-      shape: _listTileRounded,  // TODO for pure black, add (side: const BorderSide(color: ...)),
-    ),
-    child: c
-  );
+        t ??= Text(q, style: _biggerFont);
+        return ListTile(
+          title: t,
+          trailing: (i == questions.length - 1) ? questionsStatusWidget(context, status, animateStatusWrong) : null,
+          shape: _listTileRounded,
+          onTap: () => onTap(i)
+        );
+      }).toList(),
+    );
+    // Here we are careful to keep the widget tree the same regardless of whether widget is active,
+    // since otherwise the status switch animation does not show.
+    return Container(
+      decoration: ShapeDecoration(
+        color: isActive ? Theme.of(context).highlightColor : null,  // makes hover work on non-selected tiles and background color in pure black mode
+        shape: _listTileRounded,  // TODO for pure black, add (side: const BorderSide(color: ...)),
+      ),
+      child: c
+    );
+  }
 }
 
 class BouncingWidget extends StatefulWidget {
@@ -327,11 +338,10 @@ class LevelScreen extends StatelessWidget {
         padding: listPadding,
         children: interleave(
           l.exercise.fullQuestions().map((es) => InkWell(
-            child: questionsWidget(context,
-              es.map((e) => e.value).toList(),
-              es[0].key <= l.exercise.activeIndex && es.last.key >= l.exercise.activeIndex,
-              l.exercise.activeIndex - es[0].key,
-              game.doStatusAnimation(),
+            child: QuestionsWidget(es.map((e) => e.value).toList(),
+              isActive: es[0].key <= l.exercise.activeIndex && es.last.key >= l.exercise.activeIndex,
+              focussedQuestion: l.exercise.activeIndex - es[0].key,
+              animateStatusWrong: game.doStatusAnimation(),
               onTap: (j) => game.levelTapped(es[0].key + j, inExam: false),
             ),
           )),
@@ -508,9 +518,12 @@ class ExamsScreen extends StatelessWidget {
                     if (game.examUnlocked(levelIdx) || debugUnlockAll) ...[
                       if (levelIdx > 0) divider(context),
                       InkWell(
-                        child: questionsWidget(context, level.exam.questions, levelIdx == game.activeLevel, level.exam.activeIndex,
-                            game.doStatusAnimation(),
-                            onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx)),
+                        child: QuestionsWidget(level.exam.questions,
+                          isActive: levelIdx == game.activeLevel,
+                          focussedQuestion: level.exam.activeIndex,
+                          animateStatusWrong: game.doStatusAnimation(),
+                          onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx)
+                        ),
                       ),
                     ],
                     if (levelIdx == game.levels.length-1 && game.finished) ListTile(
