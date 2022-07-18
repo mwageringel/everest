@@ -271,12 +271,7 @@ class KeyboardButton extends StatelessWidget {
           width: 66,
           child: OutlinedButton(
             child: _keyIcons.containsKey(label) ? Icon(_keyIcons[label], size: 26) : Text(label, style: const TextStyle(fontSize: 20)),
-            onPressed: () async {
-              // debugPrint('  Key $label pressed');
-              final levelQuestion = game.keyPressed(label);
-              await game.storeAnswer(levelQuestion.left, levelQuestion.right);
-              await game.storeLevelsUnlocked();
-            },
+            onPressed: () => game.keyPressed(label),
           ),
         ),
       ),
@@ -315,11 +310,6 @@ class Keyboard extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget withKeyboard(BuildContext context, Widget child) {
-  final cs = [child, const Hero(tag: 'thekeyboard', child: Keyboard())];
-  return MediaQuery.of(context).orientation == Orientation.landscape ? Row(children: cs) : Column(children: cs);
 }
 
 // setting thickness/color as a workaround for invisible dividers in mobile web browser https://github.com/flutter/flutter/issues/46339
@@ -435,6 +425,42 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
+class KeyboardScaffold extends StatelessWidget {
+  final Widget title;
+  final Widget child;
+  final List<Widget>? actions;
+  const KeyboardScaffold({required this.title, required this.child, this.actions, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final game = Provider.of<Game>(context);
+    final cs = [Expanded(child: child), const Hero(tag: 'thekeyboard', child: Keyboard())];
+    return FocusScope(
+      debugLabel: 'keyboard-scaffold',
+      // skipTraversal: true,  // ideally should be skipped: TODO find a way to make sure traversal and initial focus still work (e.g. move focus along with active question)
+      autofocus: true,  // i.e. receives initial input
+      onKeyEvent: (node, e) {
+        final String? label = e.character?.toUpperCase();
+        // for now we ignore KeyRepeatEvent since UI does not rebuild fast enough or skips rebuilding some question widgets
+        if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.backspace) {
+          return game.keyPressed('backspace');
+        } else if (label != null && e is KeyDownEvent) {
+          return game.keyPressed(label);
+        } else {
+          return KeyEventResult.ignored;
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: title,
+          actions: actions,
+        ),
+        body: MediaQuery.of(context).orientation == Orientation.landscape ? Row(children: cs) : Column(children: cs),
+      ),
+    );
+  }
+}
+
 class ExamsScreen extends StatelessWidget {
   const ExamsScreen({ Key? key }) : super(key: key);
 
@@ -445,19 +471,15 @@ class ExamsScreen extends StatelessWidget {
       MaterialPageRoute<void>(
         builder: (context) {
           assert(game.activeLevel == levelIdx);
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(title),
+          return KeyboardScaffold(
+            title: Text(title),
+            // Rather than obtaining the current level from game.activeLevel, we provide it directly,
+            // since activeLevel can change on popLevel which would cause some flickering
+            // (i.e. exercises from a different level getting rendered).
+            child: Provider<Level>.value(
+              value: level,
+              child: const LevelScreen(),
             ),
-            body: withKeyboard(context, Expanded(
-              // Rather than obtaining the current level from game.activeLevel, we provide it directly,
-              // since activeLevel can change on popLevel which would cause some flickering
-              // (i.e. exercises from a different level getting rendered).
-              child: Provider<Level>.value(
-                value: level,
-                child: const LevelScreen(),
-              ),
-            )),
           );
         },
       ),
@@ -483,19 +505,16 @@ class ExamsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scaf = Scaffold(
-      appBar: AppBar(
-        title: const Text(appName),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => _pushSettings(context),
-            tooltip: 'Settings',
-          ),
-        ],
-      ),
-      body: withKeyboard(context, Expanded(
-        child: ListView.builder(
+    final scaf = KeyboardScaffold(
+      title: const Text(appName),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => _pushSettings(context),
+          tooltip: 'Settings',
+        ),
+      ],
+      child: ListView.builder(
           padding: listPadding,
           itemCount: Provider.of<Game>(context, listen: false).levels.length,  // as number of levels is constant, not listening avoids unnecessary rebuilds
           itemBuilder: (context, levelIdx) => Selector<Game, bool>(
@@ -549,8 +568,7 @@ class ExamsScreen extends StatelessWidget {
               );
             },
           ),
-        ),
-      )),
+      ),
     );
     return Consumer<Game>(builder: (context, game, child) =>
       WillPopScope(
@@ -571,7 +589,6 @@ class ExamsScreen extends StatelessWidget {
         child: scaf,
       )
     );
-
   }
 }
 

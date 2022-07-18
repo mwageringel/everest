@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show listEquals, ChangeNotifier;
 import 'package:sqflite/sqflite.dart';
 import 'package:everest/expressions.dart';
+import 'package:flutter/widgets.dart';
 
 const debugUnlockAll = false;
 const String tableKV = 'keyvalues', tableAnswers = 'answers';
@@ -145,12 +146,6 @@ Question q1(Expression<F> lhs, {bool isPartial = false}) {
 }
 Question q2(Expression<G> lhs, {bool isPartial = false}) {
   return Question(lhs.eq(yz), [y, z], isPartial: isPartial);
-}
-
-class Tuple<A, B> {
-  final A left;
-  final B right;
-  Tuple(this.left, this.right);
 }
 
 class Game with ChangeNotifier {
@@ -394,7 +389,10 @@ class Game with ChangeNotifier {
   bool get _exam1Unlocked => levelsUnlocked > 1 || levels[1].clicked || levels[1].exercise.questions.any((q) => q.inputs.isNotEmpty);
   bool examUnlocked(int i) => i <= levelsUnlocked && (i != 1 || _exam1Unlocked) || debugUnlockAll;
 
-  Tuple<Level, Question> keyPressed(String key) {
+  KeyEventResult keyPressed(String key) {
+    if (key != 'backspace' && RegExp(r"[\dX]$").matchAsPrefix(key) == null) {
+      return KeyEventResult.ignored;  // ignore invalid keys
+    }
     final l = levels[activeLevel];
     final q = inExamScreen ? l.exam.activeQuestion : l.exercise.activeQuestion;
     final numBlanks = '?'.allMatches(q.q).length;
@@ -406,7 +404,7 @@ class Game with ChangeNotifier {
         } else {
           _movePrevious(l);
         }
-      } else  { // ordinary key
+      } else { // ordinary key
         if (q.inputs.length >= numBlanks) {
           q.inputs.clear();
         }
@@ -417,7 +415,8 @@ class Game with ChangeNotifier {
       }
     } // else this exam is not yet unlocked, so we ignore the input (relevant for exam 1 only)
     notifyListeners();
-    return Tuple(l, q);
+    storeAnswer(l, q).then((_) => storeLevelsUnlocked());  // asynchronous (order of database store events is not that important)
+    return KeyEventResult.handled;
   }
 
   void _movePrevious(Level l) {
