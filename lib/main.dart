@@ -254,21 +254,15 @@ Iterable<A> interleave<A>(Iterable<A> it, A separator) {
 const listPadding = EdgeInsets.all(8.0);
 const _biggerFont = TextStyle(fontSize: 18.0);
 
-
-class Keyboard extends StatelessWidget {
-  const Keyboard({Key? key}) : super(key: key);
-
-  static const _keys = [
-    ['1', '4', '7', 'X'],
-    ['2', '5', '8', '0'],
-    ['3', '6', '9', 'backspace'],
-    // ['backspace'],
-  ];
+class KeyboardButton extends StatelessWidget {
   static const _keyIcons = {
     'backspace': Icons.backspace,
   };
+  final String label;
+  const KeyboardButton(this.label, {Key? key}) : super(key: key);
 
-  Widget keyButton(String label, BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return Consumer<Game>(builder: (context, game, child) =>
       Padding(
         padding: const EdgeInsets.all(2),
@@ -288,27 +282,37 @@ class Keyboard extends StatelessWidget {
       ),
     );
   }
+}
+
+class Keyboard extends StatelessWidget {
+  const Keyboard({Key? key}) : super(key: key);
+
+  static const _keys = [
+    ['1', '4', '7', 'X'],
+    ['2', '5', '8', '0'],
+    ['3', '6', '9', 'backspace'],
+    // ['backspace'],
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return
-      Container( // alternatively use Material(elevation..)
-        decoration: BoxDecoration(
-          color: Theme.of(context).bottomAppBarColor,
-          boxShadow: [
-            BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.4), blurRadius: 4.0, offset: const Offset(0.0, -0.75)),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _keys.map((col) =>
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: col.map((s) => keyButton(s, context)).toList(),
-            )
-          ).toList(),
-        ),
+    return Container( // alternatively use Material(elevation..)
+      decoration: BoxDecoration(
+        color: Theme.of(context).bottomAppBarColor,
+        boxShadow: [
+          BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.4), blurRadius: 4.0, offset: const Offset(0.0, -0.75)),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _keys.map((col) =>
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: col.map((s) => KeyboardButton(s)).toList(),
+          )
+        ).toList(),
+      ),
     );
   }
 }
