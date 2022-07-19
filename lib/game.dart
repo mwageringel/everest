@@ -372,10 +372,14 @@ class Game with ChangeNotifier {
   bool reset = false;
   int _inputCount = 0;
   int _doStatusAnimationAtCount = -1;
+  int _doScrollAtCount = -1;
   Game(this.db);
 
   bool doStatusAnimation() {
     return _doStatusAnimationAtCount == _inputCount;
+  }
+  bool doScrollAnimation() {
+    return _doScrollAtCount == _inputCount;
   }
 
   final List<int> _activeLevelStack = [0];
@@ -437,10 +441,14 @@ class Game with ChangeNotifier {
     }
     if (qq.activeIndex < qq.questions.length - 1) {
       if (qq.activeQuestion.isPartial || status == QuestionsStatus.correct) {
+        if (!qq.activeQuestion.isPartial) {  // for partial questions, we have already scrolled to the end of the group
+          _doScrollAtCount = _inputCount;
+        }
         qq.activeIndex += 1;
       }
     }
     if (inExamScreen && activeLevel <= levels.length - 1 && l.isSolved()) {
+      _doScrollAtCount = _inputCount;
       if (activeLevel == levels.length - 1) {
         levelsUnlocked = levels.length;  // i.e. larger than last level, signalling the game is finished
       } else { // activeLevel < levels.length - 1

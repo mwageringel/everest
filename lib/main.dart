@@ -135,16 +135,18 @@ class QuestionsWidget extends StatelessWidget {
   final bool isActive;
   final int focussedQuestion;
   final bool animateStatusWrong;
+  final bool doScroll;
   final void Function(int) onTap;
+  final Widget? trailing;
   const QuestionsWidget(this.questions,
-    {required this.isActive, required this.focussedQuestion, required bool animateStatusWrong, required this.onTap, Key? key}):
-    animateStatusWrong = animateStatusWrong && isActive, super(key: key);
+    {required this.isActive, required this.focussedQuestion, required bool animateStatusWrong, required bool doScroll, required this.onTap, this.trailing, Key? key}):
+    animateStatusWrong = animateStatusWrong && isActive, doScroll = doScroll && isActive, super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final status = jointStatus(questions);  // TODO cache this?
     final c = Column(
-      children: Iterable.generate(questions.length).map((i) {
+      children: Iterable.generate(questions.length).map<Widget>((i) {
         // the following is more direct than expr.str() and works since all variables appear exactly once from left to right
         final q = questions[i].inputs.fold<String>(questions[i].q, (q, s) => q.replaceFirst('?', s));
         Widget? t;
@@ -181,8 +183,17 @@ class QuestionsWidget extends StatelessWidget {
           shape: _listTileRounded,
           onTap: () => onTap(i)
         );
-      }).toList(),
+      }).followedBy([if (trailing != null) trailing!]).toList(),
     );
+    if (doScroll) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // for details about scrolling see https://stackoverflow.com/q/49153087
+        Scrollable.ensureVisible(context,
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+          duration: const Duration(milliseconds: 800),
+        );
+      });
+    }
     // Here we are careful to keep the widget tree the same regardless of whether widget is active,
     // since otherwise the status switch animation does not show.
     return Container(
@@ -338,6 +349,7 @@ class LevelScreen extends StatelessWidget {
                 isActive: isActive,
                 focussedQuestion: level.exercise.activeIndex - es[0].key,  // TODO use level and game from different context?
                 animateStatusWrong: game.doStatusAnimation(),
+                doScroll: game.doScrollAnimation(),
                 onTap: (j) => game.levelTapped(es[0].key + j, inExam: false),
               ),
             );
@@ -551,18 +563,12 @@ class ExamsScreen extends StatelessWidget {
                           isActive: isActive,
                           focussedQuestion: level.exam.activeIndex,
                           animateStatusWrong: game.doStatusAnimation(),
-                          onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx)
+                          doScroll: game.doScrollAnimation(),
+                          onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx),
+                          trailing: (levelIdx == game.levels.length-1 && game.finished) ? const EndMessage() : null,  // added here for autoscroll
                         ),
                       ),
                     ],
-                    if (levelIdx == game.levels.length-1 && game.finished) ListTile(
-                      title: Text('Congratulations!', style: _biggerFont.merge(TextStyle(color: Theme.of(context).colorScheme.primary))),
-                      subtitle: Text(utf8.decode(base64.decode(
-                        'T3V0c3RhbmRpbmcgYWNjb21wbGlzaG1lbnQhIFlvdSBoYXZlIGV4cGxvcmVkIHRoZSBhcml0aG1ldGlj'
-                        'cyBvZiB0aGUgZmluaXRlIGZpZWxkcyB3aXRoIDExIGFuZCAxMjEgZWxlbWVudHMuIChEaWQgeW91IG5v'
-                        'dGljZSBhIHNpbWlsYXJpdHkgd2l0aCBjb21wbGV4IG51bWJlcnM/KQ=='))),
-                      leading: const Icon(Icons.sentiment_very_satisfied),
-                    ),
                   ],
                 ),
               );
@@ -590,6 +596,18 @@ class ExamsScreen extends StatelessWidget {
       )
     );
   }
+}
+
+class EndMessage extends StatelessWidget {
+  const EndMessage({Key? key}) : super(key: key);
+  @override build(BuildContext context) => ListTile(
+    title: Text('Congratulations!', style: _biggerFont.merge(TextStyle(color: Theme.of(context).colorScheme.primary))),
+    subtitle: Text(utf8.decode(base64.decode(
+      'T3V0c3RhbmRpbmcgYWNjb21wbGlzaG1lbnQhIFlvdSBoYXZlIGV4cGxvcmVkIHRoZSBhcml0aG1ldGlj'
+      'cyBvZiB0aGUgZmluaXRlIGZpZWxkcyB3aXRoIDExIGFuZCAxMjEgZWxlbWVudHMuIChEaWQgeW91IG5v'
+      'dGljZSBhIHNpbWlsYXJpdHkgd2l0aCBjb21wbGV4IG51bWJlcnM/KQ=='))),
+    leading: const Icon(Icons.sentiment_very_satisfied),
+  );
 }
 
 class MyApp extends StatelessWidget {
