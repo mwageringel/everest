@@ -38,8 +38,9 @@ class RotateCurve extends Curve {
 final _rotateCurve = RotateCurve();
 
 class StatusIcon extends StatefulWidget {
-  final Widget child;
-  const StatusIcon(this.child, {Key? key}) : super(key: key);
+  final QuestionsStatus status;
+  final bool animateStatusWrong;
+  const StatusIcon(this.status, {required this.animateStatusWrong, Key? key}) : super(key: key);
 
   @override
   State<StatusIcon> createState() => _StatusIconState();
@@ -68,7 +69,7 @@ class _StatusIconState extends State<StatusIcon>
   }
 
   Future<void> _runAnimation() async {
-    try {  // workaround for intermediate disposal of _controller
+    try {  // circumvents intermediate disposal of _controller
       _controller.reset();  // stops previous animation if still in progress
       await _controller.forward().orCancel;
       await _controller.reverse().orCancel;
@@ -77,10 +78,22 @@ class _StatusIconState extends State<StatusIcon>
 
   @override
   Widget build(BuildContext context) {
-    _runAnimation();
-    return SlideTransition(
+    if (widget.animateStatusWrong && widget.status == QuestionsStatus.wrong) {
+      _runAnimation();
+    }
+    Widget icon = SlideTransition(
       position: _animation,
-      child: widget.child,
+      child: questionsStatusIcon(context, widget.status),
+    );
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 330),
+      transitionBuilder: (Widget child, Animation<double> animation) => VerticalScaleTransition(child, animation),
+      switchInCurve: _rotateCurve,
+      switchOutCurve: _rotateCurve,
+      child: Container(
+        key: ValueKey<QuestionsStatus>(widget.status),
+        child: icon,
+      ),
     );
   }
 }
@@ -89,91 +102,97 @@ class VerticalScaleTransition extends StatefulWidget {
   final Widget child;
   final Animation<double> animation;
   const VerticalScaleTransition(this.child, this.animation, {Key? key}) : super(key: key);
-  @override State<VerticalScaleTransition> createState() {
-    final s = _VerticalScaleTransitionState();
-    s.scaleY = animation.value; // may be 1.0 or 0.0 depending on whether this is initial creation or animated switch, avoids flickering
-    animation.addListener(s.update);
-    return s;
-  }
+  @override createState() => _VerticalScaleTransitionState();
 }
 class _VerticalScaleTransitionState extends State<VerticalScaleTransition> {
   double scaleY = 1;
-  void update() => setState(() => scaleY = widget.animation.value);
+  void _update() => setState(() => scaleY = widget.animation.value);
   @override Widget build(BuildContext context) => Transform.scale(scaleY: scaleY, child: widget.child);
-}
-
-Widget questionsStatusWidget(BuildContext context, QuestionsStatus status, bool animateStatusWrong) {
-  Widget icon = questionsStatusIcon(context, status);
-  if (animateStatusWrong && status == QuestionsStatus.wrong) {
-    icon = StatusIcon(icon);
+  @override void initState() {
+    super.initState();
+    scaleY = widget.animation.value;  // may be 1.0 or 0.0 depending on whether this is initial creation or animated switch, avoids flickering
+    widget.animation.addListener(_update);
   }
-  return AnimatedSwitcher(
-    duration: const Duration(milliseconds: 330),
-    transitionBuilder: (Widget child, Animation<double> animation) => VerticalScaleTransition(child, animation),
-    switchInCurve: _rotateCurve,
-    switchOutCurve: _rotateCurve,
-    child: Container(
-      key: ValueKey<QuestionsStatus>(status),
-      child: icon,
-    ),
-  );
+  @override void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.animation, widget.animation)) {
+      oldWidget.animation.removeListener(_update);
+      scaleY = widget.animation.value;
+      widget.animation.addListener(_update);
+    }
+  }
+  @override void dispose() {
+    widget.animation.removeListener(_update);
+    super.dispose();
+  }
 }
 
 final _listTileRadius = BorderRadius.circular(20);
 final _listTileRounded = RoundedRectangleBorder(borderRadius: _listTileRadius);
 
-// TODO turn function into widget
-Widget questionsWidget(BuildContext context, List<Question> questions, bool isActive, int focussedQuestion, bool animateStatusWrong, {required void Function(int) onTap}) {
-  final status = jointStatus(questions);  // TODO cache this?
-  final c = Column(
-    children: Iterable.generate(questions.length).map((i) {
-      // the following is more direct than expr.str() and works since all variables appear exactly once from left to right
-      final q = questions[i].inputs.fold<String>(questions[i].q, (q, s) => q.replaceFirst('?', s));
-      Widget? t;
-      if (isActive && i == focussedQuestion) {
-        var j = q.indexOf('?');
-        if (j == -1) {
-          j = questions[i].q.indexOf('?'); // relies on all replacements being single characters
-        }
-        if (j != -1) {
-          t = Text.rich(TextSpan(
-            text: q.substring(0, j),
-            style: _biggerFont,
-            children: [
-              // TextSpan(text: q.substring(j, j+1), style: TextStyle(backgroundColor: Theme.of(context).focusColor)),
-              WidgetSpan( // with padding
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).focusColor,
-                    borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+class QuestionsWidget extends StatelessWidget {
+  final List<Question> questions;
+  final bool isActive;
+  final int focussedQuestion;
+  final bool animateStatusWrong;
+  final void Function(int) onTap;
+  const QuestionsWidget(this.questions,
+    {required this.isActive, required this.focussedQuestion, required bool animateStatusWrong, required this.onTap, Key? key}):
+    animateStatusWrong = animateStatusWrong && isActive, super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final status = jointStatus(questions);  // TODO cache this?
+    final c = Column(
+      children: Iterable.generate(questions.length).map((i) {
+        // the following is more direct than expr.str() and works since all variables appear exactly once from left to right
+        final q = questions[i].inputs.fold<String>(questions[i].q, (q, s) => q.replaceFirst('?', s));
+        Widget? t;
+        if (isActive && i == focussedQuestion) {
+          var j = q.indexOf('?');
+          if (j == -1) {
+            j = questions[i].q.indexOf('?'); // relies on all replacements being single characters
+          }
+          if (j != -1) {
+            t = Text.rich(TextSpan(
+              text: q.substring(0, j),
+              style: _biggerFont,
+              children: [
+                // TextSpan(text: q.substring(j, j+1), style: TextStyle(backgroundColor: Theme.of(context).focusColor)),
+                WidgetSpan( // with padding
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).focusColor,
+                      borderRadius: const BorderRadius.all(Radius.circular(3.0)),
+                    ),
+                    child: Text(q.substring(j, j+1), style: _biggerFont),
                   ),
-                  child: Text(q.substring(j, j+1), style: _biggerFont),
                 ),
-              ),
-              TextSpan(text: q.substring(j+1)),
-            ],
-          ));
+                TextSpan(text: q.substring(j+1)),
+              ],
+            ));
+          }
         }
-      }
-      t ??= Text(q, style: _biggerFont);
-      return ListTile(
-        title: t,
-        trailing: (i == questions.length - 1) ? questionsStatusWidget(context, status, animateStatusWrong && isActive) : null,
-        shape: _listTileRounded,
-        onTap: () => onTap(i)
-      );
-    }).toList(),
-  );
-  // Here we are careful to keep the widget tree the same regardless of whether widget is active,
-  // since otherwise the status switch animation does not show.
-  return Container(
-    decoration: ShapeDecoration(
-      color: isActive ? Theme.of(context).highlightColor : null,  // makes hover work on non-selected tiles and background color in pure black mode
-      shape: _listTileRounded,  // TODO for pure black, add (side: const BorderSide(color: ...)),
-    ),
-    child: c
-  );
+        t ??= Text(q, style: _biggerFont);
+        return ListTile(
+          title: t,
+          trailing: (i == questions.length - 1) ? StatusIcon(status, animateStatusWrong: animateStatusWrong) : null,
+          shape: _listTileRounded,
+          onTap: () => onTap(i)
+        );
+      }).toList(),
+    );
+    // Here we are careful to keep the widget tree the same regardless of whether widget is active,
+    // since otherwise the status switch animation does not show.
+    return Container(
+      decoration: ShapeDecoration(
+        color: isActive ? Theme.of(context).highlightColor : null,  // makes hover work on non-selected tiles and background color in pure black mode
+        shape: _listTileRounded,  // TODO for pure black, add (side: const BorderSide(color: ...)),
+      ),
+      child: c
+    );
+  }
 }
 
 class BouncingWidget extends StatefulWidget {
@@ -235,21 +254,15 @@ Iterable<A> interleave<A>(Iterable<A> it, A separator) {
 const listPadding = EdgeInsets.all(8.0);
 const _biggerFont = TextStyle(fontSize: 18.0);
 
-
-class Keyboard extends StatelessWidget {
-  const Keyboard({Key? key}) : super(key: key);
-
-  static const _keys = [
-    ['1', '4', '7', 'X'],
-    ['2', '5', '8', '0'],
-    ['3', '6', '9', 'backspace'],
-    // ['backspace'],
-  ];
+class KeyboardButton extends StatelessWidget {
   static const _keyIcons = {
     'backspace': Icons.backspace,
   };
+  final String label;
+  const KeyboardButton(this.label, {Key? key}) : super(key: key);
 
-  Widget keyButton(String label, BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return Consumer<Game>(builder: (context, game, child) =>
       Padding(
         padding: const EdgeInsets.all(2),
@@ -269,27 +282,37 @@ class Keyboard extends StatelessWidget {
       ),
     );
   }
+}
+
+class Keyboard extends StatelessWidget {
+  const Keyboard({Key? key}) : super(key: key);
+
+  static const _keys = [
+    ['1', '4', '7', 'X'],
+    ['2', '5', '8', '0'],
+    ['3', '6', '9', 'backspace'],
+    // ['backspace'],
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return
-      Container( // alternatively use Material(elevation..)
-        decoration: BoxDecoration(
-          color: Theme.of(context).bottomAppBarColor,
-          boxShadow: [
-            BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.4), blurRadius: 4.0, offset: const Offset(0.0, -0.75)),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _keys.map((col) =>
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: col.map((s) => keyButton(s, context)).toList(),
-            )
-          ).toList(),
-        ),
+    return Container( // alternatively use Material(elevation..)
+      decoration: BoxDecoration(
+        color: Theme.of(context).bottomAppBarColor,
+        boxShadow: [
+          BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.4), blurRadius: 4.0, offset: const Offset(0.0, -0.75)),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _keys.map((col) =>
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: col.map((s) => KeyboardButton(s)).toList(),
+          )
+        ).toList(),
+      ),
     );
   }
 }
@@ -310,23 +333,29 @@ class LevelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<Game, Level>(builder: (context, game, l, child) {
-      return ListView(
-        padding: listPadding,
-        children: interleave(
-          l.exercise.fullQuestions().map((es) => InkWell(
-            child: questionsWidget(context,
-              es.map((e) => e.value).toList(),
-              es[0].key <= l.exercise.activeIndex && es.last.key >= l.exercise.activeIndex,
-              l.exercise.activeIndex - es[0].key,
-              game.doStatusAnimation(),
-              onTap: (j) => game.levelTapped(es[0].key + j, inExam: false),
-            ),
-          )),
-          divider(context),
-        ).toList(),
-      );
-    });
+    final level = Provider.of<Level>(context);
+    return ListView(
+      padding: listPadding,
+      children: interleave(
+        level.exercise.fullQuestions().map((es) => Selector<Level, bool>(
+          // selector ensures that questions widget is only rebuilt when isActive is set or changes
+          selector: (context, level) => es[0].key <= level.exercise.activeIndex && es.last.key >= level.exercise.activeIndex,  // isActive
+          shouldRebuild: (bool oldIsActive, bool isActive) => oldIsActive || isActive,
+          builder: (context, isActive, child) {
+            final game = Provider.of<Game>(context);  // changes often, so consuming it inside selector avoids triggering rebuilds
+            return InkWell(
+              child: QuestionsWidget(es.map((e) => e.value).toList(),
+                isActive: isActive,
+                focussedQuestion: level.exercise.activeIndex - es[0].key,  // TODO use level and game from different context?
+                animateStatusWrong: game.doStatusAnimation(),
+                onTap: (j) => game.levelTapped(es[0].key + j, inExam: false),
+              ),
+            );
+          },
+        )),
+        divider(context),
+      ).toList(),
+    );
   }
 }
 
@@ -466,11 +495,14 @@ class ExamsScreen extends StatelessWidget {
         ],
       ),
       body: withKeyboard(context, Expanded(
-        child: Consumer<Game>(builder: (context, game, child) {  // TODO too large widget?
-          return ListView.builder(
-            padding: listPadding,
-            itemCount: game.levels.length,
-            itemBuilder: (context, levelIdx) {
+        child: ListView.builder(
+          padding: listPadding,
+          itemCount: Provider.of<Game>(context, listen: false).levels.length,  // as number of levels is constant, not listening avoids unnecessary rebuilds
+          itemBuilder: (context, levelIdx) => Selector<Game, bool>(
+            selector: (context, game) => levelIdx == game.activeLevel && game.inExamScreen,  // isActive
+            shouldRebuild: (bool oldIsActive, bool isActive) => oldIsActive || isActive,
+            builder: (_, isActive, child) {  // we do not use the inner context since world changes (such as theme) would not trigger a rebuild
+              final game = Provider.of<Game>(context, listen: false);  // listening not needed, since selector already does
               assert((levelIdx > 0) ^ game.levels[levelIdx].exercise.questions.isEmpty);
               final level = game.levels[levelIdx];
               final label = 'Level $levelIdx';
@@ -496,9 +528,12 @@ class ExamsScreen extends StatelessWidget {
                     if (game.examUnlocked(levelIdx) || debugUnlockAll) ...[
                       if (levelIdx > 0) divider(context),
                       InkWell(
-                        child: questionsWidget(context, level.exam.questions, levelIdx == game.activeLevel, level.exam.activeIndex,
-                            game.doStatusAnimation(),
-                            onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx)),
+                        child: QuestionsWidget(level.exam.questions,
+                          isActive: isActive,
+                          focussedQuestion: level.exam.activeIndex,
+                          animateStatusWrong: game.doStatusAnimation(),
+                          onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx)
+                        ),
                       ),
                     ],
                     if (levelIdx == game.levels.length-1 && game.finished) ListTile(
@@ -513,8 +548,8 @@ class ExamsScreen extends StatelessWidget {
                 ),
               );
             },
-          );
-        }),
+          ),
+        ),
       )),
     );
     return Consumer<Game>(builder: (context, game, child) =>
