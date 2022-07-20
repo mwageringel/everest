@@ -1,0 +1,3 @@
+The game lets you explore a higher mathematical concept by solving small puzzles.
+
+No mathematical knowledge is required beyond basic arithmetics. All the rules of the game are found through exploration, based on the concept of discovery learning.
