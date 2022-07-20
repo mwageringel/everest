@@ -1,0 +1,3 @@
+- added automatic scrolling to the next question
+- added support for keyboard input
+- improved rendering performance

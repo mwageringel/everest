@@ -10,7 +10,7 @@ gh-pages:
 	flutter clean
 	make BASEHREF=/everest/demo/ web
 	# assumes worktree gh-pages is checked out in ./gh-pages/
-	cd gh-pages && git rm -rf . --ignore-unmatch && cp -p -r ../website/* . && git add . && git commit -m "update gh-pages"
+	cd gh-pages && git rm -rf . --ignore-unmatch && cp -p -r ../website/* . && git add . && git commit --amend --no-edit
 host:
 	cd website && python -m http.server 8000
 run: fonts icons
