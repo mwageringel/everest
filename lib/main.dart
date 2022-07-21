@@ -324,10 +324,13 @@ class Keyboard extends StatelessWidget {
 }
 
 // setting thickness/color as a workaround for invisible dividers in mobile web browser https://github.com/flutter/flutter/issues/46339
-Widget divider(BuildContext context) => Divider(
-  thickness: 0.5,
-  color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-);
+class MyDivider extends StatelessWidget {
+  const MyDivider({Key? key}) : super(key: key);
+  @override build(BuildContext context) => Divider(
+    thickness: 0.5,
+    color: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+  );
+}
 
 class LevelScreen extends StatelessWidget {
   const LevelScreen({ Key? key }) : super(key: key);
@@ -355,7 +358,7 @@ class LevelScreen extends StatelessWidget {
             );
           },
         )),
-        divider(context),
+        const MyDivider(),
       ).toList(),
     );
   }
@@ -401,7 +404,7 @@ class SettingsScreen extends StatelessWidget {
             ],
           ),
         ),
-        divider(context),
+        const MyDivider(),
         Consumer2<World, Game>(builder: (context, world, game, child) =>
           ListTile(
             leading: const Icon(Icons.restore),
@@ -413,7 +416,7 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
         ),
-        divider(context),
+        const MyDivider(),
         AboutListTile(
           icon: const Icon(Icons.info_outline),
           applicationVersion: "Version ${Provider.of<World>(context).appInfo.version}",
@@ -431,7 +434,7 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
-        divider(context),
+        const MyDivider(),
       ],
     );
   }
@@ -542,7 +545,7 @@ class ExamsScreen extends StatelessWidget {
                 color: Theme.of(context).scaffoldBackgroundColor,
                 child: Column(
                   children: [
-                    if (levelIdx > 0) divider(context),
+                    if (levelIdx > 0) const MyDivider(),
                     if (levelIdx > 0) ListTile(
                       title: Text(label, style: _biggerFont),
                       trailing: levelIdx == game.levelsUnlocked && !game.levels[levelIdx].clicked
@@ -557,7 +560,7 @@ class ExamsScreen extends StatelessWidget {
                       },
                     ),
                     if (game.examUnlocked(levelIdx) || debugUnlockAll) ...[
-                      if (levelIdx > 0) divider(context),
+                      if (levelIdx > 0) const MyDivider(),
                       InkWell(
                         child: QuestionsWidget(level.exam.questions,
                           isActive: isActive,
