@@ -31,23 +31,31 @@ assets-web: fonts icons-web
 icons-android: android/app/src/main/res/mipmap-hdpi/ic_launcher.png
 assets/launcher_icon.png: assets/launcher_icon.svg
 	rsvg-convert --width=1024 --height=1024 --keep-aspect-ratio assets/launcher_icon.svg > $@
-android/app/src/main/res/mipmap-hdpi/ic_launcher.png: assets/launcher_icon.png
+assets/launcher_icon_adaptive.png: assets/launcher_icon_adaptive.svg
+	rsvg-convert --page-width=1024 --page-height=1024 --width=584 --height=584 --top=220 --left=220 --keep-aspect-ratio assets/launcher_icon_adaptive.svg > $@
+android/app/src/main/res/mipmap-hdpi/ic_launcher.png: assets/launcher_icon.png assets/launcher_icon_adaptive.png
 	$(FLUTTER) pub get
 	$(FLUTTER) pub run flutter_launcher_icons:main
 
 icons-web: website/favicon.ico web/favicon.ico web/icons/Icon-192.png web/icons/Icon-maskable-192.png web/icons/Icon-512.png web/icons/Icon-maskable-512.png
 web/favicon.ico website/favicon.ico: assets/launcher_icon.svg
 	magick -background none assets/launcher_icon.svg -define icon:auto-resize $@
-web/icons/Icon-192.png web/icons/Icon-maskable-192.png: assets/launcher_icon.svg
+web/icons/Icon-192.png: assets/launcher_icon.svg
 	mkdir -p web/icons/
 	rsvg-convert --width=192 --height=192 --keep-aspect-ratio assets/launcher_icon.svg > $@
-web/icons/Icon-512.png web/icons/Icon-maskable-512.png: assets/launcher_icon.svg
+web/icons/Icon-512.png: assets/launcher_icon.svg
 	mkdir -p web/icons/
 	rsvg-convert --width=512 --height=512 --keep-aspect-ratio assets/launcher_icon.svg > $@
+web/icons/Icon-maskable-192.png: assets/launcher_icon_adaptive.svg
+	mkdir -p web/icons/
+	rsvg-convert --page-width=192 --page-height=192 --width=150 --height=150 --top=21 --left=21 --keep-aspect-ratio -b '#536dfeff' assets/launcher_icon_adaptive.svg > $@
+web/icons/Icon-maskable-512.png: assets/launcher_icon_adaptive.svg
+	mkdir -p web/icons/
+	rsvg-convert --page-width=512 --page-height=512 --width=400 --height=400 --top=56 --left=56 --keep-aspect-ratio -b '#536dfeff' assets/launcher_icon_adaptive.svg > $@
 icons-clean:
 	rm -f android/app/src/main/res/mipmap-*/ic_launcher.png
 	rm -f website/favicon.ico web/favicon.ico web/icons/*.png
-	rm -f assets/launcher_icon.png
+	rm -f assets/launcher_icon.png assets/launcher_icon_adaptive.png
 
 # fonts are downloaded and bundled into the app
 fonts: fonts/NotoSansMath-Regular.ttf

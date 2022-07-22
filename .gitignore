@@ -8,6 +8,8 @@
 *.ico
 *.apk
 *.apk.sha1
+/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+/android/app/src/main/res/values/colors.xml
 
 # Miscellaneous
 *.class
