@@ -1,6 +1,6 @@
 {
-    "name": "everest",
-    "short_name": "everest",
+    "name": "Everest",
+    "short_name": "Everest",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#536dfe",
