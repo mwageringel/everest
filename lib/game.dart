@@ -151,20 +151,37 @@ Question q2(Expression<G> lhs, {bool isPartial = false}) {
 class Game with ChangeNotifier {
   final List<Level> levels = [
     Level("0", [], [q1(C(1) + C(2))]),
-    Level("1", [ // addition
+    Level("0.5", [
       q1(C(3) + C(4)),
       q1(C(4) + C(3)),
+      q1(C(2) + C(6)),
+      q1(C(1) + C(5)),
       q1(C(3) + C(7)),
+      q1(C(6) + C(4)),
+      q1(C(2) + C(7)),
+      q1(C(9) + C(1)),
+      q1(C(0) + C(0)),
+      q1(C(3) + X),
+      q1(C(4) + X),
+      q1(X + C(6)),
+      q1(X + C(4)),
+    ], [
+      q1(C(5) + C(5)),
+      q1(C(1) + X),
+      q1(X + C(9)),
+    ]),
+    Level("1", [ // addition
       q1(C(5) + C(7)),
       q1(C(5) + C(8)),
       q1(C(6) + C(6)),
-      q1(X + C(3)),
-      q1(X + C(4)),
       q1(C(9) + C(8)),
-      q1(C(6) + X),
+      q1(C(7) + C(7)),
+      q1(C(5) + X),
+      q1(C(4) + C(9)),
+      q1(C(9) + C(6)),
     ], [
       q1(C(7) + C(8)),
-      q1(C(1) + X),
+      q1(C(2) + C(9)),
       q1(X + X),
     ]),
     Level("2", [ // subtraction

@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- a new first level
 
 ## [1.1.1] - 2022-07-20
 ### Added
