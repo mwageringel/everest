@@ -37,6 +37,9 @@ android/app/src/main/res/mipmap-hdpi/ic_launcher.png: assets/launcher_icon.png a
 	$(FLUTTER) pub get
 	$(FLUTTER) pub run flutter_launcher_icons:main
 
+icons-fdroid: assets/launcher_icon.svg
+	rsvg-convert --width=512 --height=512 --keep-aspect-ratio assets/launcher_icon.svg > metadata/en-US/images/icon.png
+
 icons-web: website/favicon.ico web/favicon.ico web/icons/Icon-192.png web/icons/Icon-maskable-192.png web/icons/Icon-512.png web/icons/Icon-maskable-512.png
 web/favicon.ico website/favicon.ico: assets/launcher_icon.svg
 	magick -background none assets/launcher_icon.svg -define icon:auto-resize $@
@@ -67,4 +70,4 @@ build/upstream/Noto_Sans_Math.zip:
 	curl --output build/upstream/Noto_Sans_Math.zip https://fonts.google.com/download?family=Noto%20Sans%20Math
 .INTERMEDIATE: build/upstream/Noto_Sans_Math.zip
 
-.PHONY: all app web gh-pages host run test assets-android assets-web fonts icons-android icons-web icons-clean clean
+.PHONY: all app web gh-pages host run test assets-android assets-web fonts icons-android icons-fdroid icons-web icons-clean clean
