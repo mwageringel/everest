@@ -2,6 +2,10 @@
 
 A mathematical puzzle game. Try it at https://mwageringel.github.io/everest/
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/io.github.mwageringel.everest/)
+
 ## Build dependencies
 
 Building with `make` requires `flutter, curl, rsvg-convert, imagemagick`.
