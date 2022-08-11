@@ -533,11 +533,18 @@ class ExamsScreen extends StatelessWidget {
           padding: listPadding,
           itemCount: Provider.of<Game>(context, listen: false).levels.length,  // as number of levels is constant, not listening avoids unnecessary rebuilds
           itemBuilder: (context, levelIdx) => Selector<Game, bool>(
-            selector: (context, game) => levelIdx == game.activeLevel && game.inExamScreen,  // isActive
-            shouldRebuild: (bool oldIsActive, bool isActive) => oldIsActive || isActive,
-            builder: (_, isActive, child) {  // we do not use the inner context since world changes (such as theme) would not trigger a rebuild
+            selector: (context, game) {
+              // Rendering exam questions is only relevant when in the exam screen.
+              // This deliberately covers a broad range of questions to avoid missing important rebuilds.
+              // Fortunately, Flutter only renders the questions that are visible on screen.
+              final isRelevant = game.inExamScreen;
+              return isRelevant;
+            },
+            shouldRebuild: (bool oldIsRelevant, bool newIsRelevant) => oldIsRelevant || newIsRelevant,
+            builder: (_, isRelevant, child) {  // we do not use the inner context since world changes (such as theme) would not trigger a rebuild
               final game = Provider.of<Game>(context, listen: false);  // listening not needed, since selector already does
               assert((levelIdx > 0) ^ game.levels[levelIdx].exercise.questions.isEmpty);
+              final isActive = levelIdx == game.activeLevel && game.inExamScreen;
               final level = game.levels[levelIdx];
               final label = 'Level $levelIdx';
               final unlocked = levelIdx <= game.levelsUnlocked || debugUnlockAll;
