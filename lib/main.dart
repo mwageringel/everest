@@ -149,8 +149,8 @@ class QuestionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = jointStatus(questions);  // TODO cache this?
-    final c = Column(
-      children: Iterable.generate(questions.length).map<Widget>((i) {
+    final c = Column(children: [
+      ...Iterable.generate(questions.length).map<Widget>((i) {
         // the following is more direct than expr.str() and works since all variables appear exactly once from left to right
         final q = questions[i].inputs.fold<String>(questions[i].q, (q, s) => q.replaceFirst('?', s));
         Widget? t;
@@ -187,8 +187,9 @@ class QuestionsWidget extends StatelessWidget {
           shape: _listTileRounded,
           onTap: () => onTap(i)
         );
-      }).followedBy([if (trailing != null) trailing!]).toList(),
-    );
+      }),
+      if (trailing != null) trailing!,
+    ]);
     if (doScroll) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // for details about scrolling see https://stackoverflow.com/q/49153087
@@ -780,7 +781,6 @@ void main() async {
         ChangeNotifierProxyProvider<World, Game>(
           create: (context) => game0,  // TODO avoid external variable
           update: (context, world, game) {
-            // debugPrint(">>> update of world");
             if (game == null || game.reset) {
               return Game(db);  // a new game without loading state from database
             } else {
