@@ -524,18 +524,28 @@ class KeyboardScaffold extends StatelessWidget {
   }
 }
 
-class ExamsScreen extends StatelessWidget {
-  const ExamsScreen({ Key? key }) : super(key: key);
+// This widget groups the level title and the three exam questions together
+// in order to allow automatic scrolling even if the questions are still hidden.
+class ExamWidget extends StatelessWidget {
+  final int levelIdx;
+  final Game game;
+  final Level level;
+  final bool isActive, unlocked, _showExamQuestions;
 
-  void _pushExercises(BuildContext context, String title, Game game, int levelIdx) {
+  ExamWidget(this.game, {required this.levelIdx, required this.isActive, Key? key}):
+    level = game.levels[levelIdx],
+    unlocked = (levelIdx <= game.levelsUnlocked || debugUnlockAll),
+    _showExamQuestions = (game.examUnlocked(levelIdx) || debugUnlockAll),
+    super(key: key);
+
+  void _pushExercises(BuildContext context, String label) {
     game.pushLevel(levelIdx);
-    final Level level = game.levels[levelIdx];
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (context) {
           assert(game.activeLevel == levelIdx);
           return KeyboardScaffold(
-            title: Text(title),
+            title: Text(label),
             // Rather than obtaining the current level from game.activeLevel, we provide it directly,
             // since activeLevel can change on popLevel which would cause some flickering
             // (i.e. exercises from a different level getting rendered).
@@ -550,6 +560,43 @@ class ExamsScreen extends StatelessWidget {
       game.popLevel();
     });
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final label = '${AppLocalizations.of(context)!.levelTitle} $levelIdx';
+    return Column(
+      children: [
+        if (levelIdx > 0) const MyDivider(),
+        if (levelIdx > 0) ListTile(
+          title: Text(label, style: _biggerFont),
+          trailing: levelIdx == game.levelsUnlocked && !game.levels[levelIdx].clicked
+            ? BouncingWidget(Icon(Icons.adaptive.arrow_forward))
+            : Icon(unlocked ? Icons.adaptive.arrow_forward : Icons.lock),
+          enabled: unlocked,
+          shape: _listTileRounded,
+          onTap: () {
+            if (unlocked) {
+              _pushExercises(context, label);
+            }
+          },
+        ),
+        if (levelIdx > 0 && _showExamQuestions) const MyDivider(),
+        QuestionsWidget(
+          _showExamQuestions ? level.exam.questions : [],  // we render the widget even with 0 questions in order to support autoscroll when the questions are hidden for the first few levels
+          isActive: isActive,
+          focussedQuestion: level.exam.activeIndex,
+          animateStatusWrong: game.doStatusAnimation(),
+          doScroll: game.doScrollAnimation(),
+          onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx),
+          trailing: (levelIdx == game.levels.length-1 && game.finished) ? const EndMessage() : null,  // added here for autoscroll
+        ),
+      ],
+    );
+  }
+}
+
+class ExamsScreen extends StatelessWidget {
+  const ExamsScreen({ Key? key }) : super(key: key);
 
   void _pushSettings(BuildContext context) {
     Navigator.of(context).push(
@@ -593,42 +640,9 @@ class ExamsScreen extends StatelessWidget {
               final game = Provider.of<Game>(context, listen: false);  // listening not needed, since selector already does
               assert((levelIdx > 0) ^ game.levels[levelIdx].exercise.questions.isEmpty);
               final isActive = levelIdx == game.activeLevel && game.inExamScreen;
-              final level = game.levels[levelIdx];
-              final label = '${AppLocalizations.of(context)!.levelTitle} $levelIdx';
-              final unlocked = levelIdx <= game.levelsUnlocked || debugUnlockAll;
               return Material( // fixes hover artifact near keyboard
                 color: Theme.of(context).scaffoldBackgroundColor,
-                child: Column(
-                  children: [
-                    if (levelIdx > 0) const MyDivider(),
-                    if (levelIdx > 0) ListTile(
-                      title: Text(label, style: _biggerFont),
-                      trailing: levelIdx == game.levelsUnlocked && !game.levels[levelIdx].clicked
-                        ? BouncingWidget(Icon(Icons.adaptive.arrow_forward))
-                        : Icon(unlocked ? Icons.adaptive.arrow_forward : Icons.lock),
-                      enabled: unlocked,
-                      shape: _listTileRounded,
-                      onTap: () {
-                        if (levelIdx <= game.levelsUnlocked || debugUnlockAll) {
-                          _pushExercises(context, label, game, levelIdx);
-                        }
-                      },
-                    ),
-                    if (game.examUnlocked(levelIdx) || debugUnlockAll) ...[
-                      if (levelIdx > 0) const MyDivider(),
-                      InkWell(
-                        child: QuestionsWidget(level.exam.questions,
-                          isActive: isActive,
-                          focussedQuestion: level.exam.activeIndex,
-                          animateStatusWrong: game.doStatusAnimation(),
-                          doScroll: game.doScrollAnimation(),
-                          onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx),
-                          trailing: (levelIdx == game.levels.length-1 && game.finished) ? const EndMessage() : null,  // added here for autoscroll
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                child: ExamWidget(game, levelIdx: levelIdx, isActive: isActive),
               );
             },
           ),

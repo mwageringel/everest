@@ -407,8 +407,10 @@ class Game with ChangeNotifier {
   bool get inExamScreen => _activeLevelStack.length == 1;
   int levelsUnlocked = 0;
   bool get finished => levelsUnlocked >= levels.length;
-  bool get _exam1Unlocked => levelsUnlocked > 1 || levels[1].clicked || levels[1].exercise.questions.any((q) => q.inputs.isNotEmpty);
-  bool examUnlocked(int i) => i <= levelsUnlocked && (i != 1 || _exam1Unlocked) || debugUnlockAll;
+  // To make it more intuitive to navigate to the exercises page, we initially hide the exams on the first few levels.
+  // For higher levels, we show the exam immediately to motivate the goal of the level and to allow shortcuts.
+  bool _exam123Unlocked(int i) => levelsUnlocked > i || levels[i].clicked || levels[i].exercise.questions.any((q) => q.inputs.isNotEmpty);
+  bool examUnlocked(int i) => i <= levelsUnlocked && (i < 1 || i > 3 || _exam123Unlocked(i)) || debugUnlockAll;
 
   KeyEventResult keyPressed(String key) {
     if (key != 'backspace' && RegExp(r"[\dX]$").matchAsPrefix(key) == null) {
