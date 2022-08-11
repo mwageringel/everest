@@ -545,7 +545,7 @@ class Game with ChangeNotifier {
     // inserted before the currently unlocked level
     final levelId = await loadKeyValue(levelsUnlockedKey);
     for (var i = 0; i < levels.length; i++) {
-      var l = levels[i];
+      Level l = levels[i];
       // restore activeExamQuestion
       for (var j = 0; j < l.exam.questions.length; j++) {
         l.exam.activeIndex = j;
@@ -553,11 +553,14 @@ class Game with ChangeNotifier {
           break;
         }
       }
-      // restore unlocked status
+      // restore unlocked and clicked status
       if (l.id == levelId) {
         levelsUnlocked = i;
         if (i == levels.length - 1 && l.isSolved()) {
           levelsUnlocked = levels.length;  // game is finished
+        }
+        if (!l.clicked && l.exercise.questions.any((q) => q.inputs.isNotEmpty)) {
+          l.clicked = true;  // this avoids unnecessary arrow animation after relaunch
         }
         break;
       }

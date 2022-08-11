@@ -235,6 +235,8 @@ class _BouncingWidgetState extends State<BouncingWidget>
     curve: Curves.easeInOutBack,
     reverseCurve: Curves.bounceIn,
   ));
+  int _cycleCount = 0;
+  bool _showInfo = false;  // after some cycles, show info icon to draw attention to exercises page
 
   // instead of a permanent long animation, we use a timer with a short animation to avoid permanent high cpu usage
   late final Timer _timer;
@@ -244,6 +246,10 @@ class _BouncingWidgetState extends State<BouncingWidget>
     _timer = Timer.periodic(const Duration(seconds: 8), (timer) async {
       await _controller.forward();
       await _controller.reverse();
+      _cycleCount++;
+      if (_cycleCount >= 3 && !_showInfo) {
+        setState(() => _showInfo = true);
+      }
     });
   }
 
@@ -258,7 +264,13 @@ class _BouncingWidgetState extends State<BouncingWidget>
   Widget build(BuildContext context) {
     return SlideTransition(
       position: _offsetAnimation,
-      child: widget.child,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_showInfo) const Icon(Icons.info_outline),
+          widget.child,
+        ],
+      ),
     );
   }
 }
