@@ -657,6 +657,15 @@ class MyApp extends StatelessWidget {
           visualDensity: FlexColorScheme.comfortablePlatformDensity,
           darkIsTrueBlack: world.pureBlack,
         ),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // English, no country code
+          Locale('de', ''), // German, no country code
+        ],
         home: const ExamsScreen(),
       ),
     );
