@@ -62,6 +62,9 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
 
+  # Enabled for flutter_localizations, for more information see https://docs.flutter.dev/development/accessibility-and-localization/internationalization
+  generate: true
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
