@@ -1,3 +1,12 @@
 {
-    "darkThemeBlackBackground": "Black background in dark theme"
+    "settings": "Settings",
+    "theme": "Theme",
+    "themeSystem": "system",
+    "themeLight": "light",
+    "themeDark": "dark",
+    "darkThemeBlackBackground": "Black background in dark theme",
+    "darkThemeBlackBackgroundSubtitle": "Mainly intended for OLED screens",
+    "restart": "Restart",
+    "restartSubtitle": "Long press to reset the progress",
+    "moreInfo": "More information at "
 }
