@@ -1,3 +1,12 @@
 {
-    "darkThemeBlackBackground": "Schwarzer Hintergrund im dunklen Theme"
+    "settings": "Einstellungen",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "darkThemeBlackBackground": "Schwarzer Hintergrund im dunklen Theme",
+    "darkThemeBlackBackgroundSubtitle": "Hauptsächlich für OLED-Bildschirme gedacht",
+    "restart": "Neustart",
+    "restartSubtitle": "Gedrückt halten um Fortschritt zurückzusetzen",
+    "moreInfo": "Mehr Informationen unter "
 }
