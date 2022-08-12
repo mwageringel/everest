@@ -139,12 +139,15 @@ class QuestionsWidget extends StatelessWidget {
   final bool isActive;
   final int focussedQuestion;
   final bool animateStatusWrong;
-  final bool doScroll;
+  final ScrollType doScroll;
   final void Function(int) onTap;
   final Widget? trailing;
   const QuestionsWidget(this.questions,
-    {required this.isActive, required this.focussedQuestion, required bool animateStatusWrong, required bool doScroll, required this.onTap, this.trailing, Key? key}):
-    animateStatusWrong = animateStatusWrong && isActive, doScroll = doScroll && isActive, super(key: key);
+    {required this.isActive, required this.focussedQuestion, required bool animateStatusWrong,
+     required ScrollType doScroll, required this.onTap, this.trailing, Key? key}):
+    animateStatusWrong = animateStatusWrong && isActive,
+    doScroll = isActive ? doScroll : ScrollType.none,
+    super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -190,12 +193,12 @@ class QuestionsWidget extends StatelessWidget {
       }),
       if (trailing != null) trailing!,
     ]);
-    if (doScroll) {
+    if (doScroll != ScrollType.none) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // for details about scrolling see https://stackoverflow.com/q/49153087
         Scrollable.ensureVisible(context,
           alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-          duration: const Duration(milliseconds: 800),
+          duration: doScroll == ScrollType.jump ? Duration.zero : const Duration(milliseconds: 800),
         );
       });
     }

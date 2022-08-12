@@ -138,6 +138,8 @@ class Level {
   bool isSolved() => jointStatus(exam.questions) == QuestionsStatus.correct;
 }
 
+enum ScrollType { none, smooth, jump }
+
 final Var<F> y = Var(), z = Var();
 final yz = dot(y, z);
 typedef Q = Question;
@@ -390,13 +392,20 @@ class Game with ChangeNotifier {
   int _inputCount = 0;
   int _doStatusAnimationAtCount = -1;
   int _doScrollAtCount = -1;
+  int _doJumpAtCount = -1;
   Game(this.db);
 
   bool doStatusAnimation() {
     return _doStatusAnimationAtCount == _inputCount;
   }
-  bool doScrollAnimation() {
-    return _doScrollAtCount == _inputCount;
+  ScrollType doScrollAnimation() {
+    if (_doJumpAtCount == _inputCount) {
+      return ScrollType.jump;
+    } else if (_doScrollAtCount == _inputCount) {
+      return ScrollType.smooth;
+    } else {
+      return ScrollType.none;
+    }
   }
 
   final List<int> _activeLevelStack = [0];
@@ -501,7 +510,13 @@ class Game with ChangeNotifier {
   void popLevel() {
     if (!inExamScreen) {
       _inputCount++;
-      _activeLevelStack.removeLast();
+      final last = _activeLevelStack.removeLast();
+      if (last == _activeLevelStack.last) {
+        // To avoid unnecessary jumps, we only scroll to the end of the questions
+        // when returning from the level that is also currently selected
+        // (e.g. when the exam questions of the first levels are made visible)
+        _doJumpAtCount = _inputCount;
+      }
       notifyListeners(); // to notify about change of active level
     }
   }
