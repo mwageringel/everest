@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -394,7 +395,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               )),
               SwitchListTile(
-                title: const Text("Use pure black background in dark theme"),
+                title: Text(AppLocalizations.of(context)!.darkThemeBlackBackground),
                 subtitle: const Text("Mainly intended for OLED screens"),
                 value: world.pureBlack,
                 onChanged: (bool value) async {
@@ -658,6 +659,7 @@ class MyApp extends StatelessWidget {
           darkIsTrueBlack: world.pureBlack,
         ),
         localizationsDelegates: const [
+          AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
