@@ -61,13 +61,19 @@ icons-clean:
 	rm -f assets/launcher_icon.png assets/launcher_icon_adaptive.png
 
 # fonts are downloaded and bundled into the app
-fonts: fonts/NotoSansMath-Regular.ttf
+fonts: fonts/NotoSansMath-Regular.ttf fonts/NotoSans-Regular.ttf
 fonts/NotoSansMath-Regular.ttf: | build/upstream/Noto_Sans_Math.zip
 	mkdir -p fonts/
 	unzip -o build/upstream/Noto_Sans_Math.zip -d fonts/
 build/upstream/Noto_Sans_Math.zip:
 	mkdir -p build/upstream/
 	curl --output build/upstream/Noto_Sans_Math.zip https://fonts.google.com/download?family=Noto%20Sans%20Math
-.INTERMEDIATE: build/upstream/Noto_Sans_Math.zip
+fonts/NotoSans-Regular.ttf: | build/upstream/Noto_Sans.zip
+	mkdir -p fonts/
+	unzip -o build/upstream/Noto_Sans.zip -d fonts/
+build/upstream/Noto_Sans.zip:
+	mkdir -p build/upstream/
+	curl --output build/upstream/Noto_Sans.zip https://fonts.google.com/download?family=Noto%20Sans
+.INTERMEDIATE: build/upstream/Noto_Sans_Math.zip build/upstream/Noto_Sans.zip
 
 .PHONY: all app web gh-pages host run test assets-android assets-web fonts icons-android icons-fdroid icons-web icons-clean clean

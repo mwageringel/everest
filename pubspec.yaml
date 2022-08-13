@@ -104,9 +104,12 @@ flutter:
     - family: NotoSansMath
       fonts:
         - asset: fonts/NotoSansMath-Regular.ttf
+    - family: NotoSans
+      fonts:
+        - asset: fonts/NotoSans-Regular.ttf
 
   assets:
-    # license for NotoSansMath
+    # license for Noto fonts
     - fonts/OFL.txt
 
 flutter_icons:

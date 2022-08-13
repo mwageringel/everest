@@ -160,7 +160,7 @@ class QuestionsWidget extends StatelessWidget {
           if (j != -1) {
             t = Text.rich(TextSpan(
               text: q.substring(0, j),
-              style: _biggerFont,
+              style: _biggerFontMath,
               children: [
                 // TextSpan(text: q.substring(j, j+1), style: TextStyle(backgroundColor: Theme.of(context).focusColor)),
                 WidgetSpan( // with padding
@@ -170,7 +170,7 @@ class QuestionsWidget extends StatelessWidget {
                       color: Theme.of(context).focusColor,
                       borderRadius: const BorderRadius.all(Radius.circular(3.0)),
                     ),
-                    child: Text(q.substring(j, j+1), style: _biggerFont),
+                    child: Text(q.substring(j, j+1), style: _biggerFontMath),
                   ),
                 ),
                 TextSpan(text: q.substring(j+1)),
@@ -178,7 +178,7 @@ class QuestionsWidget extends StatelessWidget {
             ));
           }
         }
-        t ??= Text(q, style: _biggerFont);
+        t ??= Text(q, style: _biggerFontMath);
         return ListTile(
           title: t,
           trailing: (i == questions.length - 1) ? StatusIcon(status, animateStatusWrong: animateStatusWrong) : null,
@@ -266,6 +266,7 @@ Iterable<A> interleave<A>(Iterable<A> it, A separator) {
 
 const listPadding = EdgeInsets.all(8.0);
 const _biggerFont = TextStyle(fontSize: 18.0);
+final _biggerFontMath = _biggerFont.copyWith(fontFamily: 'NotoSansMath', fontFamilyFallback: ['NotoSans']);
 
 class KeyboardButton extends StatelessWidget {
   static const _keyIcons = {
@@ -644,7 +645,7 @@ class MyApp extends StatelessWidget {
         title: appName,
         themeMode: world.themeMode,
         theme: FlexThemeData.light(
-          fontFamily: 'NotoSansMath',
+          fontFamily: 'NotoSans',
           scheme: FlexScheme.materialBaseline,
           primary: Colors.indigo,
           surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
@@ -657,7 +658,7 @@ class MyApp extends StatelessWidget {
           visualDensity: FlexColorScheme.comfortablePlatformDensity,
         ),
         darkTheme: FlexThemeData.dark(
-          fontFamily: 'NotoSansMath',
+          fontFamily: 'NotoSans',
           scheme: FlexScheme.materialBaseline,
           primary: Colors.indigoAccent,  // better contrast against dark background
           surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
@@ -728,7 +729,7 @@ void main() async {
 
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('fonts/OFL.txt');
-    yield LicenseEntryWithLineBreaks(['NotoSansMath'], license);
+    yield LicenseEntryWithLineBreaks(['NotoSansMath', 'NotoSans'], license);
   });
 
   Future<void> loadGameState(Game game) async {
