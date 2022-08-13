@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- German translation and support for translations to other languages (implemented by @vrifox)
+
 ### Fixed
 - an issue in which level 1 did not unlock
   (Workaround for version 1.1.2: Solve the very first question again or change the theme.)

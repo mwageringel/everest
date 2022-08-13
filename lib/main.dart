@@ -366,6 +366,21 @@ class LevelScreen extends StatelessWidget {
   }
 }
 
+class ThemeModeLabel extends StatelessWidget {
+  final ThemeMode _mode;
+  const ThemeModeLabel(this._mode, { Key? key }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final String s;
+    switch (_mode) {
+      case ThemeMode.system: s = AppLocalizations.of(context)!.themeSystem; break;
+      case ThemeMode.light: s = AppLocalizations.of(context)!.themeLight; break;
+      case ThemeMode.dark: s = AppLocalizations.of(context)!.themeDark; break;
+    }
+    return Text(s);
+  }
+}
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({ Key? key }) : super(key: key);
 
@@ -383,11 +398,11 @@ class SettingsScreen extends StatelessWidget {
         Consumer2<World, Game>(builder: (context, world, game, child) =>
           Column(
             children: [
-              ...(ThemeMode.values.map((ThemeMode m) =>
+              ...([ThemeMode.light, ThemeMode.system, ThemeMode.dark].map((ThemeMode m) =>
                 RadioListTile<ThemeMode>(
                   value: m,
                   groupValue: world.themeMode,
-                  title: Text(m.name),
+                  title: ThemeModeLabel(m),
                   onChanged: (mode) async {
                     world.switchTheme(themeMode: m);
                     return game.storeKeyValue(themeModeKey, m.toString());
@@ -421,7 +436,7 @@ class SettingsScreen extends StatelessWidget {
         const MyDivider(),
         AboutListTile(
           icon: const Icon(Icons.info_outline),
-          applicationVersion: "Version ${Provider.of<World>(context).appInfo.version}",
+          applicationVersion: "${AppLocalizations.of(context)!.version} ${Provider.of<World>(context).appInfo.version}",
           aboutBoxChildren: [
             SelectableText.rich(
               TextSpan(
@@ -548,7 +563,7 @@ class ExamsScreen extends StatelessWidget {
               assert((levelIdx > 0) ^ game.levels[levelIdx].exercise.questions.isEmpty);
               final isActive = levelIdx == game.activeLevel && game.inExamScreen;
               final level = game.levels[levelIdx];
-              final label = 'Level $levelIdx';
+              final label = '${AppLocalizations.of(context)!.levelTitle} $levelIdx';
               final unlocked = levelIdx <= game.levelsUnlocked || debugUnlockAll;
               return Material( // fixes hover artifact near keyboard
                 color: Theme.of(context).scaffoldBackgroundColor,
@@ -595,11 +610,11 @@ class ExamsScreen extends StatelessWidget {
           game.db != null ? Future.value(true) : showDialog<bool?>(
             context: context,
             builder: (context) => AlertDialog(
-              title: const Text('Saving not available.'),
-              content: const Text('All progress will be lost if you exit. Continue?'),
+              title: Text(AppLocalizations.of(context)!.exitDialogTitle),
+              content: Text(AppLocalizations.of(context)!.exitDialogContent),
               actions: [
-                ElevatedButton(child: const Text('Cancel'), onPressed: () => Navigator.of(context).pop(false)),
-                OutlinedButton(child: const Text('OK'), onPressed: () => Navigator.of(context).pop(true)),
+                ElevatedButton(child: Text(AppLocalizations.of(context)!.dialogCancel), onPressed: () => Navigator.of(context).pop(false)),
+                OutlinedButton(child: Text(AppLocalizations.of(context)!.dialogOk), onPressed: () => Navigator.of(context).pop(true)),
               ],
             ),
           ).then((x) => x ?? false)
@@ -613,11 +628,8 @@ class ExamsScreen extends StatelessWidget {
 class EndMessage extends StatelessWidget {
   const EndMessage({Key? key}) : super(key: key);
   @override build(BuildContext context) => ListTile(
-    title: Text('Congratulations!', style: _biggerFont.merge(TextStyle(color: Theme.of(context).colorScheme.primary))),
-    subtitle: Text(utf8.decode(base64.decode(
-      'T3V0c3RhbmRpbmcgYWNjb21wbGlzaG1lbnQhIFlvdSBoYXZlIGV4cGxvcmVkIHRoZSBhcml0aG1ldGlj'
-      'cyBvZiB0aGUgZmluaXRlIGZpZWxkcyB3aXRoIDExIGFuZCAxMjEgZWxlbWVudHMuIChEaWQgeW91IG5v'
-      'dGljZSBhIHNpbWlsYXJpdHkgd2l0aCBjb21wbGV4IG51bWJlcnM/KQ=='))),
+    title: Text(AppLocalizations.of(context)!.endMessage, style: _biggerFont.merge(TextStyle(color: Theme.of(context).colorScheme.primary))),
+    subtitle: Text(utf8.decode(base64.decode(AppLocalizations.of(context)!.extendedMessage))),
     leading: const Icon(Icons.sentiment_very_satisfied),
   );
 }
