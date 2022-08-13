@@ -1,0 +1,20 @@
+{
+    "settings": "Settings",
+    "theme": "Theme",
+    "themeSystem": "System preference",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "darkThemeBlackBackground": "Black background in dark theme",
+    "darkThemeBlackBackgroundSubtitle": "Mainly intended for OLED screens",
+    "restart": "Restart",
+    "restartSubtitle": "Long press to reset the progress",
+    "version": "Version",
+    "moreInfo": "More information at ",
+    "levelTitle": "Level",
+    "endMessage": "Congratulations!",
+    "extendedMessage": "T3V0c3RhbmRpbmcgYWNjb21wbGlzaG1lbnQhIFlvdSBoYXZlIGV4cGxvcmVkIHRoZSBhcml0aG1ldGljcyBvZiB0aGUgZmluaXRlIGZpZWxkcyB3aXRoIDExIGFuZCAxMjEgZWxlbWVudHMuIChEaWQgeW91IG5vdGljZSBhIHNpbWlsYXJpdHkgd2l0aCBjb21wbGV4IG51bWJlcnM/KQ==",
+    "exitDialogTitle": "Saving not available.",
+    "exitDialogContent": "All progress will be lost if you exit. Continue?",
+    "dialogCancel": "Cancel",
+    "dialogOk": "OK"
+}

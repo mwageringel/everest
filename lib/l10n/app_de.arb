@@ -1,0 +1,20 @@
+{
+    "settings": "Einstellungen",
+    "theme": "Farbschema",
+    "themeSystem": "Systempräferenz",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "darkThemeBlackBackground": "Schwarzer Hintergrund im dunklen Farbschema",
+    "darkThemeBlackBackgroundSubtitle": "Hauptsächlich für OLED-Bildschirme gedacht",
+    "restart": "Neustart",
+    "restartSubtitle": "Gedrückt halten um Fortschritt zurückzusetzen",
+    "version": "Version",
+    "moreInfo": "Mehr Informationen unter ",
+    "levelTitle": "Level",
+    "endMessage": "Ausgezeichnet!",
+    "extendedMessage": "SGVydm9ycmFnZW5kZSBMZWlzdHVuZyEgRHUgaGFzdCBkYXMgUmVjaG5lbiBpbiBkZW4gZW5kbGljaGVuIEvDtnJwZXJuIG1pdCAxMSB1bmQgMTIxIEVsZW1lbnRlbiBlcmZvcnNjaHQgdW5kIGdlbWVpc3RlcnQuIChJc3QgZGlyIGVpbmUgw4RobmxpY2hrZWl0IHp1IGtvbXBsZXhlbiBaYWhsZW4gYXVmZ2VmYWxsZW4/KQ==",
+    "exitDialogTitle": "Speichern nicht verfügbar.",
+    "exitDialogContent": "Der gesamte Fortschritt geht beim Schließen verloren. Fortfahren?",
+    "dialogCancel": "Abbrechen",
+    "dialogOk": "OK"
+}
