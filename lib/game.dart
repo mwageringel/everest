@@ -579,6 +579,10 @@ class Game with ChangeNotifier {
         if (!l.clicked && l.exercise.questions.any((q) => q.inputs.isNotEmpty)) {
           l.clicked = true;  // this avoids unnecessary arrow animation after relaunch
         }
+        // The following sets cursor to highest unlocked level (also makes autoscroll after relaunch work for first levels when exam is made visible).
+        // (automatically jumping the scrollable ListView to highest unlocked level at launch would be more difficult to implement though,
+        // since only the visible part of the list is rendered)
+        activeLevel = i;
         break;
       }
     }
