@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -374,9 +376,9 @@ class SettingsScreen extends StatelessWidget {
     return ListView(
       padding: listPadding,
       children: [
-        const ListTile(
-          leading: Icon(Icons.settings_brightness),
-          title: Text('Theme'),
+        ListTile(
+          leading: const Icon(Icons.settings_brightness),
+          title: Text(AppLocalizations.of(context)!.theme),
         ),
         Consumer2<World, Game>(builder: (context, world, game, child) =>
           Column(
@@ -393,8 +395,8 @@ class SettingsScreen extends StatelessWidget {
                 ),
               )),
               SwitchListTile(
-                title: const Text("Use pure black background in dark theme"),
-                subtitle: const Text("Mainly intended for OLED screens"),
+                title: Text(AppLocalizations.of(context)!.darkThemeBlackBackground),
+                subtitle: Text(AppLocalizations.of(context)!.darkThemeBlackBackgroundSubtitle),
                 value: world.pureBlack,
                 onChanged: (bool value) async {
                   world.switchTheme(pureBlack: value);
@@ -408,8 +410,8 @@ class SettingsScreen extends StatelessWidget {
         Consumer2<World, Game>(builder: (context, world, game, child) =>
           ListTile(
             leading: const Icon(Icons.restore),
-            title: const Text('Restart'),
-            subtitle: const Text('Long press to reset the progress.'),
+            title: Text(AppLocalizations.of(context)!.restart),
+            subtitle: Text(AppLocalizations.of(context)!.restartSubtitle),
             onLongPress: () async {
               await game.resetProgress();
               world.resetWorld();
@@ -424,7 +426,7 @@ class SettingsScreen extends StatelessWidget {
             SelectableText.rich(
               TextSpan(
                 children: <TextSpan>[
-                  TextSpan(style: textStyle, text: 'More info at '),
+                  TextSpan(style: textStyle, text: AppLocalizations.of(context)!.moreInfo),
                   TextSpan(
                       style: textStyle.copyWith(color: theme.colorScheme.primary),
                       text: 'https://mwageringel.github.io/everest/'),  // TODO make hyperlink clickable or copy to clipboard
@@ -509,7 +511,7 @@ class ExamsScreen extends StatelessWidget {
         builder: (context) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Settings'),
+              title: Text(AppLocalizations.of(context)!.settings),
             ),
             body: const SettingsScreen(),
           );
@@ -526,7 +528,7 @@ class ExamsScreen extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () => _pushSettings(context),
-          tooltip: 'Settings',
+          tooltip: AppLocalizations.of(context)!.settings,
         ),
       ],
       child: ListView.builder(
@@ -656,6 +658,16 @@ class MyApp extends StatelessWidget {
           visualDensity: FlexColorScheme.comfortablePlatformDensity,
           darkIsTrueBlack: world.pureBlack,
         ),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', ''), // English, no country code
+          Locale('de', ''), // German, no country code
+        ],
         home: const ExamsScreen(),
       ),
     );
