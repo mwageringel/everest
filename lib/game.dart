@@ -158,9 +158,10 @@ class Game with ChangeNotifier {
       q1(C(4) + C(3)),
       q1(C(2) + C(6)),
       q1(C(1) + C(5)),
+      q1(C(0) + X),
       q1(C(3) + C(7)),
-      q1(C(6) + C(4)),
       q1(C(2) + C(7)),
+      q1(C(6) + C(4)),
       q1(C(9) + C(1)),
       q1(C(0) + C(0)),
       q1(C(3) + X),
@@ -192,6 +193,8 @@ class Game with ChangeNotifier {
       q1(-C(3)),
       q1(-C(5)),
       q1(C(7) - C(8)),
+      q1(C(2) - C(6)),
+      q1(C(1) - C(9)),
     ], [
       q1(X - C(7)),
       q1(-C(1)),
@@ -205,6 +208,7 @@ class Game with ChangeNotifier {
       q1(C(1) * X), // 1
       q1(C(7) * C(5)),
       q1(X * C(6)),
+      q1(C(9) * C(9)),
     ], [
       q1(C(7) * C(8)),
       q1(X * C(0)),
@@ -216,6 +220,10 @@ class Game with ChangeNotifier {
       q1(C(6) * C(2)),
       q1(C(1) / C(2)),
       q1(C(3) / C(2)),
+      q1(C(7) * C(2)),
+      q1(C(2) / C(2)),
+      q1(C(6) / C(2)),
+      q1(C(7) / C(2)),
     ], [
       q1(C(5) / C(2)),
       q1(C(9) / C(2)),
@@ -227,6 +235,9 @@ class Game with ChangeNotifier {
       q1(C(5) / C(4)),
       q1(X / C(4)),  // double of previous
       q1(C(1) / C(6)),  // denominator of exam
+      q1(C(1) / C(9)),
+      q1(C(3) / C(8)),
+      q1(C(7) / C(5)),
     ], [
       q1(C(1) / C(7)),
       q1(C(1) / X),
