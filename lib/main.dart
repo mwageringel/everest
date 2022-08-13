@@ -12,6 +12,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:everest/game.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:url_launcher/link.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const appName = 'Everest';
 const String themeModeKey = 'settings:themeMode';
@@ -382,13 +384,38 @@ class ThemeModeLabel extends StatelessWidget {
   }
 }
 
+class MoreInfoMessage extends StatelessWidget {
+  const MoreInfoMessage({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final TextStyle textStyle = theme.textTheme.bodyText2!;
+    final Uri url = Uri.parse('https://mwageringel.github.io/everest/');
+    return Text.rich( // important for vertical alignment
+      TextSpan(
+        children: <InlineSpan>[
+          TextSpan(style: textStyle, text: AppLocalizations.of(context)!.moreInfo),
+          WidgetSpan(
+            child: Link(
+              uri: url,
+              builder: (context, followLink) => InkWell(
+                // opens new tab in web (in contrast to `followLink`) and external browser on android
+                onTap: () => launchUrl(url, mode: LaunchMode.externalApplication),
+                child: Text(url.toString(), style: textStyle.copyWith(color: theme.colorScheme.primary)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({ Key? key }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final TextStyle textStyle = theme.textTheme.bodyText2!;
     return ListView(
       padding: listPadding,
       children: [
@@ -438,18 +465,8 @@ class SettingsScreen extends StatelessWidget {
         AboutListTile(
           icon: const Icon(Icons.info_outline),
           applicationVersion: "${AppLocalizations.of(context)!.version} ${Provider.of<World>(context).appInfo.version}",
-          aboutBoxChildren: [
-            SelectableText.rich(
-              TextSpan(
-                children: <TextSpan>[
-                  TextSpan(style: textStyle, text: AppLocalizations.of(context)!.moreInfo),
-                  TextSpan(
-                      style: textStyle.copyWith(color: theme.colorScheme.primary),
-                      text: 'https://mwageringel.github.io/everest/'),  // TODO make hyperlink clickable or copy to clipboard
-                  TextSpan(style: textStyle, text: '.'),
-                ],
-              ),
-            ),
+          aboutBoxChildren: const [
+            MoreInfoMessage(),
           ],
         ),
         const MyDivider(),
