@@ -160,11 +160,8 @@ class QuestionsWidget extends StatelessWidget {
             j = questions[i].q.indexOf('?'); // relies on all replacements being single characters
           }
           if (j != -1) {
-            t = Text.rich(TextSpan(
-              text: q.substring(0, j),
-              style: _biggerFontMath,
-              children: [
-                // TextSpan(text: q.substring(j, j+1), style: TextStyle(backgroundColor: Theme.of(context).focusColor)),
+            t = Text.rich(
+              TextSpan(text: q.substring(0, j), style: _biggerFontMath, children: [
                 WidgetSpan( // with padding
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
@@ -172,12 +169,16 @@ class QuestionsWidget extends StatelessWidget {
                       color: Theme.of(context).focusColor,
                       borderRadius: const BorderRadius.all(Radius.circular(3.0)),
                     ),
-                    child: Text(q.substring(j, j+1), style: _biggerFontMath),
+                    child: Text(q.substring(j, j+1),
+                      style: _biggerFontMath,
+                      textScaleFactor: 1.0,  // important in order to avoid scaling twice with enlarged system font settings
+                    ),
                   ),
                 ),
                 TextSpan(text: q.substring(j+1)),
-              ],
-            ));
+              ]),
+              textScaleFactor: MediaQuery.of(context).textScaleFactor,  // for consistent font sizes with enlarged system font settings
+            );
           }
         }
         t ??= Text(q, style: _biggerFontMath);

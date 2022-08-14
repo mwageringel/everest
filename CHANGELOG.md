@@ -7,6 +7,7 @@
 ### Fixed
 - an issue in which level 1 did not unlock
   (Workaround for version 1.1.2: Solve the very first question again or change the theme.)
+- a display issue with enlarged system fonts
 - the website URL is now clickable
 
 ## [1.1.2] - 2022-07-22
