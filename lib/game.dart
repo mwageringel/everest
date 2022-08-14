@@ -138,6 +138,8 @@ class Level {
   bool isSolved() => jointStatus(exam.questions) == QuestionsStatus.correct;
 }
 
+enum ScrollType { none, smooth, jump }
+
 final Var<F> y = Var(), z = Var();
 final yz = dot(y, z);
 typedef Q = Question;
@@ -390,13 +392,20 @@ class Game with ChangeNotifier {
   int _inputCount = 0;
   int _doStatusAnimationAtCount = -1;
   int _doScrollAtCount = -1;
+  int _doJumpAtCount = -1;
   Game(this.db);
 
   bool doStatusAnimation() {
     return _doStatusAnimationAtCount == _inputCount;
   }
-  bool doScrollAnimation() {
-    return _doScrollAtCount == _inputCount;
+  ScrollType doScrollAnimation() {
+    if (_doJumpAtCount == _inputCount) {
+      return ScrollType.jump;
+    } else if (_doScrollAtCount == _inputCount) {
+      return ScrollType.smooth;
+    } else {
+      return ScrollType.none;
+    }
   }
 
   final List<int> _activeLevelStack = [0];
@@ -407,8 +416,10 @@ class Game with ChangeNotifier {
   bool get inExamScreen => _activeLevelStack.length == 1;
   int levelsUnlocked = 0;
   bool get finished => levelsUnlocked >= levels.length;
-  bool get _exam1Unlocked => levelsUnlocked > 1 || levels[1].clicked || levels[1].exercise.questions.any((q) => q.inputs.isNotEmpty);
-  bool examUnlocked(int i) => i <= levelsUnlocked && (i != 1 || _exam1Unlocked) || debugUnlockAll;
+  // To make it more intuitive to navigate to the exercises page, we initially hide the exams on the first few levels.
+  // For higher levels, we show the exam immediately to motivate the goal of the level and to allow shortcuts.
+  bool _exam123Unlocked(int i) => levelsUnlocked > i || levels[i].clicked || levels[i].exercise.questions.any((q) => q.inputs.isNotEmpty);
+  bool examUnlocked(int i) => i <= levelsUnlocked && (i < 1 || i > 3 || _exam123Unlocked(i)) || debugUnlockAll;
 
   KeyEventResult keyPressed(String key) {
     if (key != 'backspace' && RegExp(r"[\dX]$").matchAsPrefix(key) == null) {
@@ -499,7 +510,13 @@ class Game with ChangeNotifier {
   void popLevel() {
     if (!inExamScreen) {
       _inputCount++;
-      _activeLevelStack.removeLast();
+      final last = _activeLevelStack.removeLast();
+      if (last == _activeLevelStack.last) {
+        // To avoid unnecessary jumps, we only scroll to the end of the questions
+        // when returning from the level that is also currently selected
+        // (e.g. when the exam questions of the first levels are made visible)
+        _doJumpAtCount = _inputCount;
+      }
       notifyListeners(); // to notify about change of active level
     }
   }
@@ -545,7 +562,7 @@ class Game with ChangeNotifier {
     // inserted before the currently unlocked level
     final levelId = await loadKeyValue(levelsUnlockedKey);
     for (var i = 0; i < levels.length; i++) {
-      var l = levels[i];
+      Level l = levels[i];
       // restore activeExamQuestion
       for (var j = 0; j < l.exam.questions.length; j++) {
         l.exam.activeIndex = j;
@@ -553,12 +570,19 @@ class Game with ChangeNotifier {
           break;
         }
       }
-      // restore unlocked status
+      // restore unlocked and clicked status
       if (l.id == levelId) {
         levelsUnlocked = i;
         if (i == levels.length - 1 && l.isSolved()) {
           levelsUnlocked = levels.length;  // game is finished
         }
+        if (!l.clicked && l.exercise.questions.any((q) => q.inputs.isNotEmpty)) {
+          l.clicked = true;  // this avoids unnecessary arrow animation after relaunch
+        }
+        // The following sets cursor to highest unlocked level (also makes autoscroll after relaunch work for first levels when exam is made visible).
+        // (automatically jumping the scrollable ListView to highest unlocked level at launch would be more difficult to implement though,
+        // since only the visible part of the list is rendered)
+        activeLevel = i;
         break;
       }
     }
