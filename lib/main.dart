@@ -286,6 +286,7 @@ Iterable<A> interleave<A>(Iterable<A> it, A separator) {
 const listPadding = EdgeInsets.all(8.0);
 const _biggerFont = TextStyle(fontSize: 18.0);
 final _biggerFontMath = _biggerFont.copyWith(fontFamily: 'NotoSansMath', fontFamilyFallback: ['NotoSans']);
+final _biggerFontMathButton = _biggerFontMath.copyWith(fontSize: 20.0);  // NotoSansMath appears to be better vertically centered than NotoSans
 
 class KeyboardButton extends StatelessWidget {
   static const _keyIcons = {
@@ -303,7 +304,7 @@ class KeyboardButton extends StatelessWidget {
           height: 44,
           width: 66,
           child: OutlinedButton(
-            child: _keyIcons.containsKey(label) ? Icon(_keyIcons[label], size: 26) : Text(label, style: const TextStyle(fontSize: 20)),
+            child: _keyIcons.containsKey(label) ? Icon(_keyIcons[label], size: 26) : Text(label, style: _biggerFontMathButton),
             onPressed: () => game.keyPressed(label),
           ),
         ),
