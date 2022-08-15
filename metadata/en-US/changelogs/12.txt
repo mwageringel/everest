@@ -1,0 +1,3 @@
+- a few additional questions in the first levels
+- German translation
+- small fixes related to font sizes and navigation

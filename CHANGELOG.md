@@ -1,8 +1,14 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.1.3] - 2022-08-15
 ### Added
 - German translation and support for translations to other languages (implemented by @vrifox)
+
+### Changed
+- small revision of the first few levels
+- small changes to navigation to give more priority to the subpages, especially in the first levels
 
 ### Fixed
 - an issue in which level 1 did not unlock
@@ -30,7 +36,8 @@
 ### Changed
 - appearance and color scheme
 
-[Unreleased]: https://github.com/mwageringel/everest/compare/1.1.2...HEAD
+[Unreleased]: https://github.com/mwageringel/everest/compare/1.1.3...HEAD
+[1.1.3]: https://github.com/mwageringel/everest/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/mwageringel/everest/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/mwageringel/everest/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/mwageringel/everest/releases/tag/1.1.0

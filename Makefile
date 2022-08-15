@@ -4,7 +4,7 @@ BASEHREF=/demo/
 all: app web
 app: assets-android
 	$(FLUTTER) config --no-analytics
-	$(FLUTTER) build apk
+	$(FLUTTER) build apk --release
 web: assets-web
 	$(FLUTTER) build web --base-href=$(BASEHREF) --release
 	rm -rf website/demo/
