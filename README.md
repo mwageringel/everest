@@ -14,3 +14,15 @@ Building with `make` requires `flutter, curl, rsvg-convert, imagemagick`.
 APK signing certificate fingerprint (SHA-256) of releases on GitHub:
 
     576bae61b2aba5d1d32a17d373baa36e05beaaefb67d9b47218d004c0e8333d9
+
+## Available Languages
+
+- English
+- German
+- Ukrainian
+
+Thanks to all the contributors.
+Additional translations are welcome – these are the files to translate:
+- [metadata/en-US/full_description.txt](metadata/en-US/full_description.txt)
+- [metadata/en-US/short_description.txt](metadata/en-US/short_description.txt)
+- [lib/l10n/app_en.arb](lib/l10n/app_en.arb)
