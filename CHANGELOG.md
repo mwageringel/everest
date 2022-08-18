@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Ukrainian translation (by @andmizyk)
 
 ## [1.1.3] - 2022-08-15
 ### Added
