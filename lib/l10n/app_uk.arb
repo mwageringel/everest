@@ -1,0 +1,20 @@
+{
+    "settings": "Налаштування",
+    "theme": "Тема",
+    "themeSystem": "Системні налаштування",
+    "themeLight": "Світла",
+    "themeDark": "Темна",
+    "darkThemeBlackBackground": "Чорний фон у темній темі",
+    "darkThemeBlackBackgroundSubtitle": "В основному призначено для ерканів OLED",
+    "restart": "Перезапустити",
+    "restartSubtitle": "Довге натискання, щоб скинути поступ",
+    "version": "Версія",
+    "moreInfo": "Більше інформації на ",
+    "levelTitle": "Рівень",
+    "endMessage": "Вітаємо!",
+    "extendedMessage": "T3V0c3RhbmRpbmcgYWNjb21wbGlzaG1lbnQhIFlvdSBoYXZlIGV4cGxvcmVkIHRoZSBhcml0aG1ldGljcyBvZiB0aGUgZmluaXRlIGZpZWxkcyB3aXRoIDExIGFuZCAxMjEgZWxlbWVudHMuIChEaWQgeW91IG5vdGljZSBhIHNpbWlsYXJpdHkgd2l0aCBjb21wbGV4IG51bWJlcnM/KQ==",
+    "exitDialogTitle": "Зберігання недоступне.",
+    "exitDialogContent": "Увесь поступ буде втрачено під час виходу. Продовжити?",
+    "dialogCancel": "Скасувати",
+    "dialogOk": "Гаразд"
+}
