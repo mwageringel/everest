@@ -399,7 +399,6 @@ class Game with ChangeNotifier {
   ];
 
   final Database? db;
-  bool reset = false;
   int _inputCount = 0;
   int _doStatusAnimationAtCount = -1;
   int _doScrollAtCount = -1;
@@ -610,6 +609,27 @@ class Game with ChangeNotifier {
     if (db != null) {
       await db!.delete(tableAnswers);
     }
-    reset = true;
+  }
+
+  Future<void> loadGameState() async {
+    // initialization of state from database (to be called once for initialization)
+    final answers = await loadAnswers();
+    for (final level in levels) {
+      for (final question in level.exercise.questions.followedBy(level.exam.questions)) {
+        final answer = answers[question.fullId(level)];
+        if (answer != null) {
+          question.updateInputs(question.unstringifyInputs(answer));
+        }
+      }
+    }
+    await recomputeExamsState();
+  }
+
+  static Future<Game> initializedGame(Database? db, {required bool loadProgress}) async {
+    final game = Game(db);
+    if (loadProgress) {
+      await game.loadGameState();
+    }
+    return game;
   }
 }

@@ -474,7 +474,7 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(AppLocalizations.of(context)!.restartSubtitle),
             onLongPress: () async {
               await game.resetProgress();
-              world.resetWorld();
+              world.resetGame(Game.initializedGame(game.db, loadProgress: false));
             },
           ),
         ),
@@ -739,10 +739,12 @@ class World with ChangeNotifier {
   ThemeMode themeMode;
   bool pureBlack;
   final PackageInfo appInfo;
-  World(this.appInfo, this.themeMode, this.pureBlack);
+  Future<Game> gameFuture;
+  World(this.appInfo, this.themeMode, this.pureBlack, this.gameFuture);
 
-  void resetWorld() {
-    notifyListeners();  // results in new game getting initialized from database
+  void resetGame(Future<Game> newGame) {
+    gameFuture = newGame;
+    notifyListeners();
   }
 
   void switchTheme({ThemeMode? themeMode, bool? pureBlack}) {
@@ -779,46 +781,32 @@ void main() async {
     yield LicenseEntryWithLineBreaks(['NotoSansMath', 'NotoSans'], license);
   });
 
-  Future<void> loadGameState(Game game) async {
-    // initialization of state from database
-    final answers = await game.loadAnswers();
-    for (final level in game.levels) {
-      for (final question in level.exercise.questions.followedBy(level.exam.questions)) {
-        final answer = answers[question.fullId(level)];
-        if (answer != null) {
-          question.updateInputs(question.unstringifyInputs(answer));
-        }
-      }
-    }
-    await game.recomputeExamsState();
-  }
-
   Future<ThemeMode> loadThemeMode(Game game) async {
     String? mode = await game.loadKeyValue(themeModeKey);
     return ThemeMode.values.firstWhere((m) => m.toString() == mode, orElse: () => ThemeMode.system);
   }
 
-  final game0 = Game(db);
-  await loadGameState(game0);  // loaded here since `create` is not asynchronous
+  // loading the game from the database is quick, so we do it synchronously here, so that the initial render can already show the actual progress
+  final game0 = await Game.initializedGame(db, loadProgress: true);
   final themeMode0 = await loadThemeMode(game0);
   final pureBlack0 = (await game0.loadKeyValue(pureBlackKey)) == true.toString();  // false by default
   final appInfo = await PackageInfo.fromPlatform();
+  final world0 = World(appInfo, themeMode0, pureBlack0, Future.value(game0));
+
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => World(appInfo, themeMode0, pureBlack0)),
-        ChangeNotifierProxyProvider<World, Game>(
-          create: (context) => game0,  // TODO avoid external variable
-          update: (context, world, game) {
-            if (game == null || game.reset) {
-              return Game(db);  // a new game without loading state from database
-            } else {
-              return game;
-            }
-          },
-        ),
-      ],
-      child: const MyApp(),
+    ChangeNotifierProvider<World>.value(
+      value: world0,
+      child: Consumer<World>(builder: (context, world, child) {
+        return FutureProvider<Game>.value(
+          value: world.gameFuture,  // differs from game0 once resetGame is called
+          initialData: game0,  // After game has been reset, we should avoid showing this old game progress, but since reset happens on another page, it is likely never visible
+          child: Consumer<Game>(builder: (context, game, child) {
+            return ChangeNotifierProvider.value(
+              value: game,
+              child: const MyApp());
+          }),
+        );
+      }),
     ),
   );
 }
