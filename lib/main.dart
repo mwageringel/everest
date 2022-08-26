@@ -674,11 +674,18 @@ class ExamsScreen extends StatelessWidget {
   }
 }
 
+class ExtendedMessage extends StatelessWidget {
+  const ExtendedMessage({Key? key}) : super(key: key);
+  @override build(BuildContext context) => Text(
+    utf8.decode(base64.decode(AppLocalizations.of(context)!.extendedMessage))
+  );
+}
+
 class EndMessage extends StatelessWidget {
   const EndMessage({Key? key}) : super(key: key);
   @override build(BuildContext context) => ListTile(
     title: Text(AppLocalizations.of(context)!.endMessage, style: _biggerFont.merge(TextStyle(color: Theme.of(context).colorScheme.primary))),
-    subtitle: Text(utf8.decode(base64.decode(AppLocalizations.of(context)!.extendedMessage))),
+    subtitle: const ExtendedMessage(),
     leading: const Icon(Icons.sentiment_very_satisfied),
   );
 }

@@ -19,7 +19,7 @@ host:
 run: assets-android assets-web
 	$(FLUTTER) run
 test:
-	$(FLUTTER) test test/expressions_test.dart
+	$(FLUTTER) test test/* -r expanded
 clean: icons-clean
 	$(FLUTTER) clean
 	rm -rf website/demo/
