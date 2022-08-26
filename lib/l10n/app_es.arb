@@ -1,0 +1,20 @@
+{
+    "settings": "Opciones",
+    "theme": "Tema",
+    "themeSystem": "Preferido del sistema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "darkThemeBlackBackground": "Fondo negro para el tema oscuro",
+    "darkThemeBlackBackgroundSubtitle": "Principalmente para pantallas OLED",
+    "restart": "Reiniciar",
+    "restartSubtitle": "Mantenga presionado para reiniciar el progreso",
+    "version": "Versión",
+    "moreInfo": "Más información en ",
+    "levelTitle": "Nivel",
+    "endMessage": "¡Enhorabuena!",
+    "extendedMessage": "wqFVbiBsb2dybyBleHRyYW9yZGluYXJpbyEgSGFzIGV4cGxvcmFkbyBsYSBhcml0bcOpdGljYSBkZSBsb3MgY2FtcG9zIGZpbml0b3MgY29uIDExIHkgMTIxIGVsZW1lbnRvcy4gKMK/Tm90YXN0ZSBhbGdvIHNpbWlsYXIgYSBsb3MgbsO6bWVyb3MgY29tcGxlam9zPyk=",
+    "exitDialogTitle": "Guardado no disponible.",
+    "exitDialogContent": "Si sales, todo tu progreso se perderá. ¿Continuar?",
+    "dialogCancel": "Cancelar",
+    "dialogOk": "Aceptar"
+}
