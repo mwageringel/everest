@@ -1,8 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.1.4] - 2022-09-01
 ### Added
 - Ukrainian translation (by @andmizyk)
+- Spanish translation (by @thermosflasche)
 
 ## [1.1.3] - 2022-08-15
 ### Added
@@ -38,7 +41,8 @@
 ### Changed
 - appearance and color scheme
 
-[Unreleased]: https://github.com/mwageringel/everest/compare/1.1.3...HEAD
+[Unreleased]: https://github.com/mwageringel/everest/compare/1.1.4...HEAD
+[1.1.4]: https://github.com/mwageringel/everest/compare/1.1.3...1.1.4
 [1.1.3]: https://github.com/mwageringel/everest/compare/1.1.2...1.1.3
 [1.1.2]: https://github.com/mwageringel/everest/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/mwageringel/everest/compare/1.1.0...1.1.1
