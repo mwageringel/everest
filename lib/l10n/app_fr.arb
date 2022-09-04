@@ -1,0 +1,20 @@
+{
+    "settings": "Paramètres",
+    "theme": "Thème",
+    "themeSystem": "Préférence du système",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "darkThemeBlackBackground": "Arrière-plan noir en thème sombre",
+    "darkThemeBlackBackgroundSubtitle": "Généralement conçu pour les écrans OLED",
+    "restart": "Recommencer",
+    "restartSubtitle": "Maintenez appuyé pour réinitialiser la progression",
+    "version": "Version",
+    "moreInfo": "Plus d'informations sur ",
+    "levelTitle": "Niveau",
+    "endMessage": "Félicitations !",
+    "extendedMessage": "UXVlbGxlIHLDqXVzc2l0ZSBleGNlcHRpb25uZWxsZSAhIFZvdXMgYXZleiBleHBsb3LDqSBsJ2FyaXRobcOpdGlxdWUgc3VyIGxlcyBjb3JwcyBmaW5pcyDDoCAxMSBldCAxMjEgw6lsw6ltZW50cyAhIChBdmV6LXZvdXMgcmVtYXJxdcOpIHVuZSBzaW1pbGFyaXTDqSBhdmVjIGxlcyBub21icmVzIGNvbXBsZXhlcyA/KQ==",
+    "exitDialogTitle": "Sauvegarde non disponible",
+    "exitDialogContent": "Toute la progression sera perdue si vous quittez. Continuer ?",
+    "dialogCancel": "Annuler",
+    "dialogOk": "OK"
+}
