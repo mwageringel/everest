@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- French translation (by @DodoLeDev)
 
 ## [1.1.4] - 2022-09-01
 ### Added
