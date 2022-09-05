@@ -10,6 +10,7 @@ const String columnKey = 'key', columnValue = 'value', columnId = 'id', columnLe
 const String levelsUnlockedKey = 'game:levelsUnlocked';
 
 enum QuestionsStatus { wrong, partial, correct }
+enum QuestionsStatusCovered { wrong, partial, correct, covered }
 QuestionsStatus combineStatus(QuestionsStatus a, QuestionsStatus b) {
   if (a == QuestionsStatus.correct) {
     return b;
