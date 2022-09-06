@@ -531,6 +531,13 @@ class Game with ChangeNotifier {
     }
   }
 
+  void popSettings() {
+    // This method is needed as a workaround for an issue introduced with flutter 3.3.0:
+    // When the theme changes, the exam questions do not redraw anymore,
+    // so we force a redraw by notifying about a game change.
+    notifyListeners();
+  }
+
   Future<void> storeAnswer(Level level, Question question) async {
     await db?.insert(tableAnswers, question.toMap(level), conflictAlgorithm: ConflictAlgorithm.replace);
   }

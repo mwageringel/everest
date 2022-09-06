@@ -614,7 +614,9 @@ class ExamsScreen extends StatelessWidget {
           );
         },
       ),
-    );
+    ).then((_) {
+      Provider.of<Game>(context, listen: false).popSettings();
+    });
   }
 
   @override
