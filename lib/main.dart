@@ -481,7 +481,7 @@ class SettingsScreen extends StatelessWidget {
         const MyDivider(),
         AboutListTile(
           icon: const Icon(Icons.info_outline),
-          applicationVersion: "${AppLocalizations.of(context)!.version} ${Provider.of<World>(context).appInfo.version}",
+          applicationVersion: "${AppLocalizations.of(context)!.version} ${Provider.of<World>(context).appInfo?.version}",
           aboutBoxChildren: const [
             MoreInfoMessage(),
           ],
@@ -693,45 +693,64 @@ class EndMessage extends StatelessWidget {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final World world0;
+  final Game _game0;
+
+  const MyApp(this.world0, this._game0, {Key? key}) : super(key: key);
+
+  static ThemeData lightTheme() => FlexThemeData.light(
+    fontFamily: 'NotoSans',
+    scheme: FlexScheme.materialBaseline,
+    primary: Colors.indigo,
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+    blendLevel: 4,
+    appBarOpacity: 0.95,
+    subThemesData: const FlexSubThemesData(
+      blendOnLevel: 4,
+      blendOnColors: false,
+    ),
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+  );
+
+  static ThemeData darkTheme(bool pureBlack) => FlexThemeData.dark(
+    fontFamily: 'NotoSans',
+    scheme: FlexScheme.materialBaseline,
+    primary: Colors.indigoAccent,  // better contrast against dark background
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+    blendLevel: 10,
+    appBarStyle: FlexAppBarStyle.background,
+    appBarOpacity: 0.90,
+    subThemesData: const FlexSubThemesData(
+      blendOnLevel: 10,
+    ),
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    darkIsTrueBlack: pureBlack,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<World>(builder: (context, world, child) =>
-      MaterialApp(
-        title: appName,
-        themeMode: world.themeMode,
-        theme: FlexThemeData.light(
-          fontFamily: 'NotoSans',
-          scheme: FlexScheme.materialBaseline,
-          primary: Colors.indigo,
-          surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-          blendLevel: 4,
-          appBarOpacity: 0.95,
-          subThemesData: const FlexSubThemesData(
-            blendOnLevel: 4,
-            blendOnColors: false,
-          ),
-          visualDensity: FlexColorScheme.comfortablePlatformDensity,
-        ),
-        darkTheme: FlexThemeData.dark(
-          fontFamily: 'NotoSans',
-          scheme: FlexScheme.materialBaseline,
-          primary: Colors.indigoAccent,  // better contrast against dark background
-          surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-          blendLevel: 10,
-          appBarStyle: FlexAppBarStyle.background,
-          appBarOpacity: 0.90,
-          subThemesData: const FlexSubThemesData(
-            blendOnLevel: 10,
-          ),
-          visualDensity: FlexColorScheme.comfortablePlatformDensity,
-          darkIsTrueBlack: world.pureBlack,
-        ),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: const ExamsScreen(),
-      ),
+    return ChangeNotifierProvider<World>.value(
+      value: world0,
+      child: Consumer<World>(builder: (context, world, child) {
+        return FutureProvider<Game>.value(
+          value: world.gameFuture,  // differs from game0 once resetGame is called
+          initialData: _game0,  // After game has been reset, we should avoid showing this old game progress, but since reset happens on another page, it is likely never visible
+          child: Consumer<Game>(builder: (context, game, child) {
+            return ChangeNotifierProvider.value(
+              value: game,
+              child: MaterialApp(
+                title: appName,
+                themeMode: world.themeMode,
+                theme: lightTheme(),
+                darkTheme: darkTheme(world.pureBlack),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: const ExamsScreen(),
+              ),
+            );
+          }),
+        );
+      }),
     );
   }
 }
@@ -740,7 +759,7 @@ class MyApp extends StatelessWidget {
 class World with ChangeNotifier {
   ThemeMode themeMode;
   bool pureBlack;
-  final PackageInfo appInfo;
+  final PackageInfo? appInfo;
   Future<Game> gameFuture;
   World(this.appInfo, this.themeMode, this.pureBlack, this.gameFuture);
 
@@ -794,21 +813,5 @@ void main() async {
   final pureBlack0 = (await game0.loadKeyValue(pureBlackKey)) == true.toString();  // false by default
   final appInfo = await PackageInfo.fromPlatform();
   final world0 = World(appInfo, themeMode0, pureBlack0, Future.value(game0));
-
-  runApp(
-    ChangeNotifierProvider<World>.value(
-      value: world0,
-      child: Consumer<World>(builder: (context, world, child) {
-        return FutureProvider<Game>.value(
-          value: world.gameFuture,  // differs from game0 once resetGame is called
-          initialData: game0,  // After game has been reset, we should avoid showing this old game progress, but since reset happens on another page, it is likely never visible
-          child: Consumer<Game>(builder: (context, game, child) {
-            return ChangeNotifierProvider.value(
-              value: game,
-              child: const MyApp());
-          }),
-        );
-      }),
-    ),
-  );
+  runApp(MyApp(world0, game0));
 }
