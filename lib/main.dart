@@ -693,9 +693,10 @@ class ExamsScreen extends StatelessWidget {
           itemBuilder: (context, levelIdx) => Selector<Game, bool>(
             selector: (context, game) {
               // Rendering exam questions is only relevant when in the exam screen.
-              // This deliberately covers a broad range of questions to avoid missing important rebuilds.
-              // Fortunately, Flutter only renders the questions that are visible on screen.
-              final isRelevant = game.inExamScreen;
+              // (Flutter only renders the questions that are visible on screen.)
+              // This triggers full rebuilds whenever exiting a subpage (to account for resets/theme changes/unlocks)
+              // and selective rebuilds for levels actively changing.
+              final isRelevant = game.inExamScreen && (levelIdx == game.activeLevel || game.doRedrawEverything());
               return isRelevant;
             },
             shouldRebuild: (bool oldIsRelevant, bool newIsRelevant) => oldIsRelevant || newIsRelevant,
