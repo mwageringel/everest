@@ -64,10 +64,15 @@ class DampedCurve extends Curve {
 }
 final _dampedCurve = DampedCurve();
 
-class RotateCurve extends Curve {
+class RotateCurve extends Curve {  // 90 rotation
   @override double transformInternal(double t) => t < 0.5 ? 0 : -cos(t*pi);
 }
 final _rotateCurve = RotateCurve();
+
+class RotateCurve2 extends Curve {  // 180 rotation
+  @override double transformInternal(double t) => t < 0.5 ? 0 : cos(2*t*pi);
+}
+final _rotateCurve2 = RotateCurve2();
 
 class StatusIconConnector extends StatelessWidget {
   const StatusIconConnector({Key? key}) : super(key: key);
@@ -526,7 +531,16 @@ class SettingsScreen extends StatelessWidget {
         const MyDivider(),
         Consumer2<World, Game>(builder: (context, world, game, child) =>
           ListTile(
-            leading: const Icon(Icons.restore),
+            leading: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 660),
+              transitionBuilder: (Widget child, Animation<double> animation) => VerticalScaleTransition(child, animation, horizontal: true),
+              switchInCurve: _rotateCurve2,
+              switchOutCurve: _rotateCurve2,
+              child: Container(
+                key: ObjectKey(game),
+                child: const Icon(Icons.restore),
+              ),
+            ),
             title: Text(AppLocalizations.of(context)!.restart),
             subtitle: Text(AppLocalizations.of(context)!.restartSubtitle),
             onLongPress: () async {
