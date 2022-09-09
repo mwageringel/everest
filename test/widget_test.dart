@@ -30,19 +30,24 @@ void main() {
     final world0 = World(null, ThemeMode.light, pureBlack0, Future.value(game0));
     await tester.pumpWidget(MyApp(world0, game0));
 
-    Color? examBackgroundColor() {
-      final m = tester.firstElement(find.byType(ExamWidget)).findAncestorWidgetOfExactType<Material>();
-      return m!.color;
+    checkExamBackgroundColors(Color expectedColor) {
+      // helpful accessors: https://stackoverflow.com/a/47296248 https://stackoverflow.com/a/62641476
+      List<Color?> colors = tester.elementList(find.byType(ExamWidget)).map((w) =>
+        w.findAncestorWidgetOfExactType<Material>()!.color
+      ).toList();
+      expect(colors.length, greaterThan(3));
+      for (final c in colors) {
+        expect(c, equals(expectedColor));
+      }
     }
-    // helpful accessors: https://stackoverflow.com/a/47296248 https://stackoverflow.com/a/62641476
 
-    expect(examBackgroundColor(), equals(MyApp.lightTheme().scaffoldBackgroundColor));
+    checkExamBackgroundColors(MyApp.lightTheme().scaffoldBackgroundColor);
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();  // important for color transition animation to finish
     await tester.pageBack();
     await tester.pumpAndSettle();
-    expect(examBackgroundColor(), equals(MyApp.darkTheme(pureBlack0).scaffoldBackgroundColor));
+    checkExamBackgroundColors(MyApp.darkTheme(pureBlack0).scaffoldBackgroundColor);
   });
 }
