@@ -18,12 +18,41 @@ const appName = 'Everest';
 const String themeModeKey = 'settings:themeMode';
 const String pureBlackKey = 'settings:pureBlack';
 
-Icon questionsStatusIcon(BuildContext context, QuestionsStatus status) {
-  final light = Theme.of(context).brightness == Brightness.light;
-  switch (status) {
-    case QuestionsStatus.partial: return Icon(Icons.circle_outlined, color: Theme.of(context).colorScheme.secondary.withOpacity(.75));
-    case QuestionsStatus.correct: return Icon(Icons.check_circle, color: Color(light ? 0xff1ca23e : 0xff2fae49));
-    case QuestionsStatus.wrong: return Icon(Icons.cancel, color: Color(light ? 0xffd51529 : 0xfff6313a));
+class StatusIcon extends StatelessWidget {
+  final QuestionsStatusCovered statusCovered;
+  const StatusIcon(this.statusCovered, {Key? key}) : super(key: key);
+
+  static Color color(BuildContext context) {
+    final light = Theme.of(context).brightness == Brightness.light;
+    if (light) {
+      return const Color(0xff888888);  // default gray
+    } else {
+      return const Color(0xffa3a8bf); // default bluish-white 0xffd5dbfa detoned
+    }
+  }
+
+  static QuestionsStatusCovered mkStatusCovered(QuestionsStatus statusSingle, {QuestionsStatus? statusCombined}) {
+    // if statusCombined is null, then this is not a multi question
+    if (statusSingle == QuestionsStatus.partial) {
+      return QuestionsStatusCovered.partial;
+    } else if (statusCombined == QuestionsStatus.correct || statusCombined == null && statusSingle == QuestionsStatus.correct) {
+      return QuestionsStatusCovered.correct;
+    } else if (statusCombined == null && statusSingle == QuestionsStatus.wrong) {
+      return QuestionsStatusCovered.wrong;
+    } else {  // statusCombined != null and statusSingle is covered (wrong or correct)
+      return QuestionsStatusCovered.covered;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final light = Theme.of(context).brightness == Brightness.light;
+    switch (statusCovered) {
+      case QuestionsStatusCovered.partial: return Icon(Icons.circle_outlined, color: color(context));
+      case QuestionsStatusCovered.correct: return Icon(Icons.check_circle, color: Color(light ? 0xff1ca23e : 0xff2fae49));
+      case QuestionsStatusCovered.wrong: return Icon(Icons.cancel, color: Color(light ? 0xffd51529 : 0xfff6313a));
+      case QuestionsStatusCovered.covered: return Icon(Icons.help, color: color(context));
+    }
   }
 }
 
@@ -40,16 +69,23 @@ class RotateCurve extends Curve {
 }
 final _rotateCurve = RotateCurve();
 
-class StatusIcon extends StatefulWidget {
-  final QuestionsStatus status;
-  final bool animateStatusWrong;
-  const StatusIcon(this.status, {required this.animateStatusWrong, Key? key}) : super(key: key);
-
-  @override
-  State<StatusIcon> createState() => _StatusIconState();
+class StatusIconConnector extends StatelessWidget {
+  const StatusIconConnector({Key? key}) : super(key: key);
+  @override build(context) => Container(width: 2.5, color: StatusIcon.color(context));
 }
 
-class _StatusIconState extends State<StatusIcon>
+class AnimatedStatusIcon extends StatefulWidget {
+  final QuestionsStatus statusCombined, statusSingle;
+  final bool isFirst, isLast, isMulti;
+  final bool animateStatusWrong;
+  const AnimatedStatusIcon(this.statusSingle, {required this.statusCombined, required this.animateStatusWrong, Key? key, required this.isFirst, required this.isLast}) :
+    isMulti = !(isFirst && isLast),
+    super(key: key);
+
+  @override
+  State<AnimatedStatusIcon> createState() => _AnimatedStatusIconState();
+}
+class _AnimatedStatusIconState extends State<AnimatedStatusIcon>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     duration: const Duration(milliseconds: 70),
@@ -81,36 +117,51 @@ class _StatusIconState extends State<StatusIcon>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.animateStatusWrong && widget.status == QuestionsStatus.wrong) {
-      _runAnimation();
-    }
-    Widget icon = SlideTransition(
-      position: _animation,
-      child: questionsStatusIcon(context, widget.status),
-    );
-    return AnimatedSwitcher(
+    final innerIcon = StatusIcon(StatusIcon.mkStatusCovered(widget.statusSingle, statusCombined: widget.isMulti ? widget.statusCombined : null));
+    final animSwitcher = AnimatedSwitcher(  // icon change animation
       duration: const Duration(milliseconds: 330),
-      transitionBuilder: (Widget child, Animation<double> animation) => VerticalScaleTransition(child, animation),
+      transitionBuilder: (Widget child, Animation<double> animation) => VerticalScaleTransition(child, animation, horizontal: widget.isMulti),
       switchInCurve: _rotateCurve,
       switchOutCurve: _rotateCurve,
       child: Container(
-        key: ValueKey<QuestionsStatus>(widget.status),
-        child: icon,
+        key: ValueKey<QuestionsStatusCovered>(innerIcon.statusCovered),
+        child: innerIcon,
       ),
     );
+    if (widget.animateStatusWrong && widget.statusCombined == QuestionsStatus.wrong) {
+      _runAnimation();
+    }
+    Widget iconWithConnector = SlideTransition(  // error animation
+      position: _animation,
+      child: !widget.isMulti ?
+        animSwitcher :
+        Column(
+          children: [
+            Expanded(child: Visibility(visible: !widget.isFirst, child: const StatusIconConnector())),
+            animSwitcher,
+            Expanded(child: Visibility(visible: !widget.isLast, child: const StatusIconConnector())),
+          ],
+        ),
+    );
+    return iconWithConnector;
   }
 }
 
 class VerticalScaleTransition extends StatefulWidget {
   final Widget child;
   final Animation<double> animation;
-  const VerticalScaleTransition(this.child, this.animation, {Key? key}) : super(key: key);
+  final bool horizontal;
+  const VerticalScaleTransition(this.child, this.animation, {this.horizontal = false, Key? key}) : super(key: key);
   @override createState() => _VerticalScaleTransitionState();
 }
 class _VerticalScaleTransitionState extends State<VerticalScaleTransition> {
   double scaleY = 1;
   void _update() => setState(() => scaleY = widget.animation.value);
-  @override Widget build(BuildContext context) => Transform.scale(scaleY: scaleY, child: widget.child);
+  @override Widget build(BuildContext context) => Transform.scale(
+    scaleX: widget.horizontal ? scaleY : 1.0,
+    scaleY: widget.horizontal ? 1.0 : scaleY,
+    child: widget.child
+  );
   @override void initState() {
     super.initState();
     scaleY = widget.animation.value;  // may be 1.0 or 0.0 depending on whether this is initial creation or animated switch, avoids flickering
@@ -186,7 +237,13 @@ class QuestionsWidget extends StatelessWidget {
         t ??= Text(q, style: _biggerFontMath);
         return ListTile(
           title: t,
-          trailing: (i == questions.length - 1) ? StatusIcon(status, animateStatusWrong: animateStatusWrong) : null,
+          trailing: AnimatedStatusIcon(
+            questions[i].status(),
+            statusCombined: status,
+            animateStatusWrong: animateStatusWrong,
+            isFirst: i == 0,
+            isLast: i == questions.length - 1,
+          ),
           shape: _listTileRounded,
           onTap: () => onTap(i)
         );
@@ -636,9 +693,10 @@ class ExamsScreen extends StatelessWidget {
           itemBuilder: (context, levelIdx) => Selector<Game, bool>(
             selector: (context, game) {
               // Rendering exam questions is only relevant when in the exam screen.
-              // This deliberately covers a broad range of questions to avoid missing important rebuilds.
-              // Fortunately, Flutter only renders the questions that are visible on screen.
-              final isRelevant = game.inExamScreen;
+              // (Flutter only renders the questions that are visible on screen.)
+              // This triggers full rebuilds whenever exiting a subpage (to account for resets/theme changes/unlocks)
+              // and selective rebuilds for levels actively changing.
+              final isRelevant = game.inExamScreen && (levelIdx == game.activeLevel || game.doRedrawEverything());
               return isRelevant;
             },
             shouldRebuild: (bool oldIsRelevant, bool newIsRelevant) => oldIsRelevant || newIsRelevant,

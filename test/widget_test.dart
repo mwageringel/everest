@@ -4,6 +4,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:everest/main.dart';
 import 'package:everest/game.dart';
 
+findKeypad(String n) => find.descendant(of: find.byType(KeyboardButton), matching: find.text(n));
+
 void main() {
   test('debug mode disabled', () {
     expect(debugUnlockAll, equals(false));
@@ -20,6 +22,23 @@ void main() {
       );
     });
   }
+
+  testWidgets('unlocking of level 1', (WidgetTester tester) async {
+    // Check that unlocking of exam 1 works even when we click onto level 0 before opening the level 1 subpage.
+    // The problem was that this makes level 0 active, such that lazy redrawing did not refresh exam 1 when it should become visible.
+    final game0 = Game(null);
+    final world0 = World(null, ThemeMode.light, false, Future.value(game0));
+    await tester.pumpWidget(MyApp(world0, game0));
+    await tester.tap(findKeypad('3'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.textContaining('1 + 2'));  // tapping here means that level 0 becomes "active" (the main source of the redrawing issue)
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Level 1'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.textContaining('5 + 5'), findsOneWidget);  // the first exam questions of level 1 should be visible
+  });
 
   testWidgets('theme change', (WidgetTester tester) async {
     // This tests checks that the background color of the exam screen changes

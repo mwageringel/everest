@@ -10,6 +10,7 @@ const String columnKey = 'key', columnValue = 'value', columnId = 'id', columnLe
 const String levelsUnlockedKey = 'game:levelsUnlocked';
 
 enum QuestionsStatus { wrong, partial, correct }
+enum QuestionsStatusCovered { wrong, partial, correct, covered }
 QuestionsStatus combineStatus(QuestionsStatus a, QuestionsStatus b) {
   if (a == QuestionsStatus.correct) {
     return b;
@@ -163,7 +164,8 @@ class Game with ChangeNotifier {
       q1(C(2) + C(7)),
       q1(C(6) + C(4)),
       q1(C(9) + C(1)),
-      q1(C(0) + C(0)),
+      q1(C(0) + C(0), isPartial: true),
+      q1(C(3) + C(1)),
       q1(C(3) + X),
       q1(C(4) + X),
       q1(X + C(6)),
@@ -403,6 +405,7 @@ class Game with ChangeNotifier {
   int _doStatusAnimationAtCount = -1;
   int _doScrollAtCount = -1;
   int _doJumpAtCount = -1;
+  int _doRedrawAtCount = -1;
   Game(this.db);
 
   bool doStatusAnimation() {
@@ -416,6 +419,9 @@ class Game with ChangeNotifier {
     } else {
       return ScrollType.none;
     }
+  }
+  bool doRedrawEverything() {
+    return _doRedrawAtCount == _inputCount;
   }
 
   final List<int> _activeLevelStack = [0];
@@ -527,6 +533,7 @@ class Game with ChangeNotifier {
         // (e.g. when the exam questions of the first levels are made visible)
         _doJumpAtCount = _inputCount;
       }
+      _doRedrawAtCount = _inputCount;  // redraw all exams, so that in particular the first levels become visible when they are uncovered (see regression tests)
       notifyListeners(); // to notify about change of active level
     }
   }
@@ -535,6 +542,8 @@ class Game with ChangeNotifier {
     // This method is needed as a workaround for an issue introduced with flutter 3.3.0:
     // When the theme changes, the exam questions do not redraw anymore,
     // so we force a redraw by notifying about a game change.
+    _inputCount++;
+    _doRedrawAtCount = _inputCount;  // this allows more lazy redrawing of exams (using selectors) whenever global settings are not involved
     notifyListeners();
   }
 
