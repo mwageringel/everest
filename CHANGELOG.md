@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Added
 - French translation (by @DodoLeDev)
+- several tests
+
+### Changed
+- sets of questions now show an icon for each question for better visual feedback
 
 ## [1.1.4] - 2022-09-01
 ### Added
