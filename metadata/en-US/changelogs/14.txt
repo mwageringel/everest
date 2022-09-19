@@ -1,0 +1,2 @@
+- French translation
+- revised icons in the main screen
