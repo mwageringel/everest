@@ -851,21 +851,25 @@ class World with ChangeNotifier {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Avoid errors caused by flutter upgrade.
   Database? db;
-  try {
-    db = await openDatabase(
-      join(await getDatabasesPath(), 'everest-data.db'),
-      onCreate: (db, version) async {
-        // note that adding additional tables to existing database file requires some extra steps
-        await db.execute(
-          'CREATE TABLE $tableKV($columnKey TEXT PRIMARY KEY, $columnValue TEXT)',
-        );
-        await db.execute(
-          'CREATE TABLE $tableAnswers($columnId TEXT PRIMARY KEY, $columnLevel TEXT, $columnQuestion TEXT, $columnInputs TEXT)',
-        );
-      },
-      version: 1,
-    );
-  } on MissingPluginException {
+  if (!kIsWeb) {
+    try {
+      db = await openDatabase(
+        join(await getDatabasesPath(), 'everest-data.db'),
+        onCreate: (db, version) async {
+          // note that adding additional tables to existing database file requires some extra steps
+          await db.execute(
+            'CREATE TABLE $tableKV($columnKey TEXT PRIMARY KEY, $columnValue TEXT)',
+          );
+          await db.execute(
+            'CREATE TABLE $tableAnswers($columnId TEXT PRIMARY KEY, $columnLevel TEXT, $columnQuestion TEXT, $columnInputs TEXT)',
+          );
+        },
+        version: 1,
+      );
+    } on MissingPluginException {
+      db = null;  // database is not available for the web
+    }
+  } else {
     db = null;  // database is not available for the web
   }
 
