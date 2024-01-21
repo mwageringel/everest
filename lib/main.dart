@@ -388,7 +388,7 @@ class Keyboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container( // alternatively use Material(elevation..)
       decoration: BoxDecoration(
-        color: Theme.of(context).bottomAppBarColor,
+        color: Theme.of(context).bottomAppBarTheme.color,
         boxShadow: [
           BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.4), blurRadius: 4.0, offset: const Offset(0.0, -0.75)),
         ],
@@ -468,7 +468,7 @@ class MoreInfoMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final TextStyle textStyle = theme.textTheme.bodyText2!;
+    final TextStyle textStyle = theme.textTheme.bodyMedium!;
     final Uri url = Uri.parse('https://mwageringel.github.io/everest/');
     return Text.rich( // important for vertical alignment
       TextSpan(
@@ -780,8 +780,12 @@ class MyApp extends StatelessWidget {
     subThemesData: const FlexSubThemesData(
       blendOnLevel: 4,
       blendOnColors: false,
+      blendTextTheme: true,  // blends theme colors into text
+      tintedDisabledControls: true,
+      outlinedButtonOutlineSchemeColor: SchemeColor.primary,
     ),
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
   );
 
   static ThemeData darkTheme(bool pureBlack) => FlexThemeData.dark(
@@ -794,8 +798,12 @@ class MyApp extends StatelessWidget {
     appBarOpacity: 0.90,
     subThemesData: const FlexSubThemesData(
       blendOnLevel: 10,
+      blendTextTheme: true,  // blends theme colors into text
+      tintedDisabledControls: true,
+      outlinedButtonOutlineSchemeColor: SchemeColor.primary,
     ),
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
     darkIsTrueBlack: pureBlack,
   );
 
