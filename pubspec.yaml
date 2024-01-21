@@ -107,7 +107,7 @@ flutter:
         - asset: fonts/NotoSansMath-Regular.ttf
     - family: NotoSans
       fonts:
-        - asset: fonts/NotoSans-Regular.ttf
+        - asset: fonts/static/NotoSans/NotoSans-Regular.ttf
 
   assets:
     # license for Noto fonts
