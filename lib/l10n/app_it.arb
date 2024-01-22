@@ -14,7 +14,7 @@
     "endMessage": "Congratulazioni!",
     "extendedMessage": "VW4gdHJhZ3VhcmRvIGluY3JlZGliaWxlISBIYWkgZXNwbG9yYXRvIGwnYXJpdG1ldGljYSBkZWkgY2FtcGkgZmluaXRpIGNvbiAxMSBlIDEyMSBlbGVtZW50aS4gKEhhaSBub3RhdG8gbGEgc29taWdsaWFuemEgY29uIGkgbnVtZXJpIGNvbXBsZXNzaT8p",
     "exitDialogTitle": "Salvataggio non disponibile.",
-    "exitDialogContent": "Tutti i progressi saranno persi se esci. Continuare?",
+    "exitDialogContent": "Uscendo perderai tutti i progressi. Continuare?",
     "dialogCancel": "Annulla",
     "dialogOk": "OK"
 }
