@@ -1,0 +1,20 @@
+{
+    "settings": "Impostazioni",
+    "theme": "Tema",
+    "themeSystem": "Preferenze di sistema",
+    "themeLight": "Chiaro",
+    "themeDark": "Scuro",
+    "darkThemeBlackBackground": "Sfondo nero con tema scuro",
+    "darkThemeBlackBackgroundSubtitle": "Indicato principalmente per schermi OLED",
+    "restart": "Riavvia",
+    "restartSubtitle": "Premere a lungo per resettare i progressi salvati",
+    "version": "Versione",
+    "moreInfo": "Più informazioni presso ",
+    "levelTitle": "Livello",
+    "endMessage": "Congratulazioni!",
+    "extendedMessage": "VW4gdHJhZ3VhcmRvIGluY3JlZGliaWxlISBIYWkgZXNwbG9yYXRvIGwnYXJpdG1ldGljYSBkZWkgY2FtcGkgZmluaXRpIGNvbiAxMSBlIDEyMSBlbGVtZW50aS4gKEhhaSBub3RhdG8gbGEgc29taWdsaWFuemEgY29uIGkgbnVtZXJpIGNvbXBsZXNzaT8p",
+    "exitDialogTitle": "Salvataggio non disponibile.",
+    "exitDialogContent": "Tutti i progressi saranno persi se esci. Continuare?",
+    "dialogCancel": "Annulla",
+    "dialogOk": "OK"
+}
