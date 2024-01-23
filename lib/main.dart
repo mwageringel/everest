@@ -74,6 +74,14 @@ class RotateCurve2 extends Curve {  // 180 rotation
 }
 final _rotateCurve2 = RotateCurve2();
 
+class DelayedEaseCurve extends Curve {
+  // This delay is tweaked such that the down-scrolling to show the new exam
+  // questions (after return to the main screen) looks smooth rather than janky.
+  static double delay = 0.35;
+  @override double transformInternal(double t) => t < delay ? 0 : Curves.ease.transformInternal((t - delay) / (1 - delay));
+}
+final _delayedEaseCurve = DelayedEaseCurve();
+
 class StatusIconConnector extends StatelessWidget {
   const StatusIconConnector({Key? key}) : super(key: key);
   @override build(context) => Container(width: 2.5, color: StatusIcon.color(context));
@@ -260,7 +268,8 @@ class QuestionsWidget extends StatelessWidget {
         // for details about scrolling see https://stackoverflow.com/q/49153087
         Scrollable.ensureVisible(context,
           alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-          duration: doScroll == ScrollType.jump ? Duration.zero : const Duration(milliseconds: 800),
+          duration: doScroll == ScrollType.jump ? Duration(milliseconds: (800 / (1 - DelayedEaseCurve.delay)).round()) : const Duration(milliseconds: 800),
+          curve: doScroll == ScrollType.jump ? _delayedEaseCurve : Curves.ease,  // formerly this was a `jump`, now it is just a delayed smooth scroll
         );
       });
     }
