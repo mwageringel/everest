@@ -232,7 +232,7 @@ class QuestionsWidget extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).focusColor,
+                      color: Theme.of(context).textSelectionTheme.selectionColor,
                       borderRadius: const BorderRadius.all(Radius.circular(3.0)),
                     ),
                     child: Text(q.substring(j, j+1),
