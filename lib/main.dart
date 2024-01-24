@@ -74,6 +74,14 @@ class RotateCurve2 extends Curve {  // 180 rotation
 }
 final _rotateCurve2 = RotateCurve2();
 
+class DelayedEaseCurve extends Curve {
+  // This delay is tweaked such that the down-scrolling to show the new exam
+  // questions (after return to the main screen) looks smooth rather than janky.
+  static double delay = 0.35;
+  @override double transformInternal(double t) => t < delay ? 0 : Curves.ease.transformInternal((t - delay) / (1 - delay));
+}
+final _delayedEaseCurve = DelayedEaseCurve();
+
 class StatusIconConnector extends StatelessWidget {
   const StatusIconConnector({Key? key}) : super(key: key);
   @override build(context) => Container(width: 2.5, color: StatusIcon.color(context));
@@ -224,7 +232,7 @@ class QuestionsWidget extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).focusColor,
+                      color: Theme.of(context).textSelectionTheme.selectionColor,
                       borderRadius: const BorderRadius.all(Radius.circular(3.0)),
                     ),
                     child: Text(q.substring(j, j+1),
@@ -260,7 +268,8 @@ class QuestionsWidget extends StatelessWidget {
         // for details about scrolling see https://stackoverflow.com/q/49153087
         Scrollable.ensureVisible(context,
           alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-          duration: doScroll == ScrollType.jump ? Duration.zero : const Duration(milliseconds: 800),
+          duration: doScroll == ScrollType.jump ? Duration(milliseconds: (800 / (1 - DelayedEaseCurve.delay)).round()) : const Duration(milliseconds: 800),
+          curve: doScroll == ScrollType.jump ? _delayedEaseCurve : Curves.ease,  // formerly this was a `jump`, now it is just a delayed smooth scroll
         );
       });
     }
@@ -388,7 +397,7 @@ class Keyboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container( // alternatively use Material(elevation..)
       decoration: BoxDecoration(
-        color: Theme.of(context).bottomAppBarColor,
+        color: Theme.of(context).bottomAppBarTheme.color,
         boxShadow: [
           BoxShadow(color: Theme.of(context).shadowColor.withOpacity(0.4), blurRadius: 4.0, offset: const Offset(0.0, -0.75)),
         ],
@@ -468,7 +477,7 @@ class MoreInfoMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final TextStyle textStyle = theme.textTheme.bodyText2!;
+    final TextStyle textStyle = theme.textTheme.bodyMedium!;
     final Uri url = Uri.parse('https://mwageringel.github.io/everest/');
     return Text.rich( // important for vertical alignment
       TextSpan(
@@ -780,8 +789,12 @@ class MyApp extends StatelessWidget {
     subThemesData: const FlexSubThemesData(
       blendOnLevel: 4,
       blendOnColors: false,
+      blendTextTheme: true,  // blends theme colors into text
+      tintedDisabledControls: true,
+      outlinedButtonOutlineSchemeColor: SchemeColor.primary,
     ),
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
   );
 
   static ThemeData darkTheme(bool pureBlack) => FlexThemeData.dark(
@@ -794,8 +807,12 @@ class MyApp extends StatelessWidget {
     appBarOpacity: 0.90,
     subThemesData: const FlexSubThemesData(
       blendOnLevel: 10,
+      blendTextTheme: true,  // blends theme colors into text
+      tintedDisabledControls: true,
+      outlinedButtonOutlineSchemeColor: SchemeColor.primary,
     ),
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
     darkIsTrueBlack: pureBlack,
   );
 
@@ -851,21 +868,25 @@ class World with ChangeNotifier {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Avoid errors caused by flutter upgrade.
   Database? db;
-  try {
-    db = await openDatabase(
-      join(await getDatabasesPath(), 'everest-data.db'),
-      onCreate: (db, version) async {
-        // note that adding additional tables to existing database file requires some extra steps
-        await db.execute(
-          'CREATE TABLE $tableKV($columnKey TEXT PRIMARY KEY, $columnValue TEXT)',
-        );
-        await db.execute(
-          'CREATE TABLE $tableAnswers($columnId TEXT PRIMARY KEY, $columnLevel TEXT, $columnQuestion TEXT, $columnInputs TEXT)',
-        );
-      },
-      version: 1,
-    );
-  } on MissingPluginException {
+  if (!kIsWeb) {
+    try {
+      db = await openDatabase(
+        join(await getDatabasesPath(), 'everest-data.db'),
+        onCreate: (db, version) async {
+          // note that adding additional tables to existing database file requires some extra steps
+          await db.execute(
+            'CREATE TABLE $tableKV($columnKey TEXT PRIMARY KEY, $columnValue TEXT)',
+          );
+          await db.execute(
+            'CREATE TABLE $tableAnswers($columnId TEXT PRIMARY KEY, $columnLevel TEXT, $columnQuestion TEXT, $columnInputs TEXT)',
+          );
+        },
+        version: 1,
+      );
+    } on MissingPluginException {
+      db = null;  // database is not available for the web
+    }
+  } else {
     db = null;  // database is not available for the web
   }
 

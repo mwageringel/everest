@@ -35,7 +35,7 @@ assets/launcher_icon_adaptive.png: assets/launcher_icon_adaptive.svg
 	rsvg-convert --width=1024 --height=1024 --keep-aspect-ratio assets/launcher_icon_adaptive.svg > $@
 android/app/src/main/res/mipmap-hdpi/ic_launcher.png: assets/launcher_icon.png assets/launcher_icon_adaptive.png
 	$(FLUTTER) pub get
-	$(FLUTTER) pub run flutter_launcher_icons:main
+	$(FLUTTER) pub run flutter_launcher_icons
 
 icons-fdroid: assets/launcher_icon.svg
 	rsvg-convert --width=512 --height=512 --keep-aspect-ratio assets/launcher_icon.svg > metadata/en-US/images/icon.png
@@ -61,14 +61,14 @@ icons-clean:
 	rm -f assets/launcher_icon.png assets/launcher_icon_adaptive.png
 
 # fonts are downloaded and bundled into the app
-fonts: fonts/NotoSansMath-Regular.ttf fonts/NotoSans-Regular.ttf
+fonts: fonts/NotoSansMath-Regular.ttf fonts/static/NotoSans/NotoSans-Regular.ttf
 fonts/NotoSansMath-Regular.ttf: | build/upstream/Noto_Sans_Math.zip
 	mkdir -p fonts/
 	unzip -o build/upstream/Noto_Sans_Math.zip -d fonts/
 build/upstream/Noto_Sans_Math.zip:
 	mkdir -p build/upstream/
 	curl --output build/upstream/Noto_Sans_Math.zip https://fonts.google.com/download?family=Noto%20Sans%20Math
-fonts/NotoSans-Regular.ttf: | build/upstream/Noto_Sans.zip
+fonts/static/NotoSans/NotoSans-Regular.ttf: | build/upstream/Noto_Sans.zip
 	mkdir -p fonts/
 	unzip -o build/upstream/Noto_Sans.zip -d fonts/
 build/upstream/Noto_Sans.zip:
