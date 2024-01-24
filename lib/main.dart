@@ -203,11 +203,12 @@ class QuestionsWidget extends StatelessWidget {
   final int focussedQuestion;
   final bool animateStatusWrong;
   final ScrollType doScroll;
+  final void Function() doneScrollAnimation;
   final void Function(int) onTap;
   final Widget? trailing;
   const QuestionsWidget(this.questions,
     {required this.isActive, required this.focussedQuestion, required bool animateStatusWrong,
-     required ScrollType doScroll, required this.onTap, this.trailing, Key? key}):
+     required ScrollType doScroll, required this.doneScrollAnimation, required this.onTap, this.trailing, Key? key}):
     animateStatusWrong = animateStatusWrong && isActive,
     doScroll = isActive ? doScroll : ScrollType.none,
     super(key: key);
@@ -271,6 +272,7 @@ class QuestionsWidget extends StatelessWidget {
           duration: doScroll == ScrollType.jump ? Duration(milliseconds: (800 / (1 - DelayedEaseCurve.delay)).round()) : const Duration(milliseconds: 800),
           curve: doScroll == ScrollType.jump ? _delayedEaseCurve : Curves.ease,  // formerly this was a `jump`, now it is just a delayed smooth scroll
         );
+        doneScrollAnimation();
       });
     }
     // Here we are careful to keep the widget tree the same regardless of whether widget is active,
@@ -446,6 +448,7 @@ class LevelScreen extends StatelessWidget {
                 focussedQuestion: level.exercise.activeIndex - es[0].key,  // TODO use level and game from different context?
                 animateStatusWrong: game.doStatusAnimation(),
                 doScroll: game.doScrollAnimation(),
+                doneScrollAnimation: game.doneScrollAnimation,
                 onTap: (j) => game.levelTapped(es[0].key + j, inExam: false),
               ),
             );
@@ -671,6 +674,7 @@ class ExamWidget extends StatelessWidget {
           focussedQuestion: level.exam.activeIndex,
           animateStatusWrong: game.doStatusAnimation(),
           doScroll: game.doScrollAnimation(),
+          doneScrollAnimation: game.doneScrollAnimation,
           onTap: (i) => game.levelTapped(i, inExam: true, levelIdx: levelIdx),
           trailing: (levelIdx == game.levels.length-1 && game.finished) ? const EndMessage() : null,  // added here for autoscroll
         ),

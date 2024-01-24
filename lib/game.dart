@@ -420,6 +420,15 @@ class Game with ChangeNotifier {
       return ScrollType.none;
     }
   }
+  void doneScrollAnimation() {
+    if (doScrollAnimation() != ScrollType.none) {
+      _inputCount++;  // ensures that we only scroll once (otherwise, scrolling up and back down manually would retrigger the scroll animation)
+    } else {
+      // We have already left the scroll conditions due to some other input, so we do nothing to reduce risk of messing up the state.
+      // TODO A safer implementation would pass the original _inputCount as token and check
+      // whether it is still the same, or whether a scroll has already been performed for that token.
+    }
+  }
   bool doRedrawEverything() {
     return _doRedrawAtCount == _inputCount;
   }
