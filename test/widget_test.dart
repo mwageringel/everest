@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:everest/main.dart';
 import 'package:everest/game.dart';
+import 'package:everest/storage.dart';
 
 findKeypad(String n) => find.descendant(of: find.byType(KeyboardButton), matching: find.text(n));
 
@@ -26,7 +27,7 @@ void main() {
   testWidgets('unlocking of level 1', (WidgetTester tester) async {
     // Check that unlocking of exam 1 works even when we click onto level 0 before opening the level 1 subpage.
     // The problem was that this makes level 0 active, such that lazy redrawing did not refresh exam 1 when it should become visible.
-    final game0 = Game(null);
+    final game0 = Game(SqfliteDatabaseWrapper(null));
     final world0 = World(null, ThemeMode.light, false, Future.value(game0));
     await tester.pumpWidget(MyApp(world0, game0));
     await tester.tap(findKeypad('3'));
@@ -44,7 +45,7 @@ void main() {
     // This tests checks that the background color of the exam screen changes
     // immediately after switching from light to dark theme, a regression
     // introduced with the upgrade to flutter 3.3.0.
-    final game0 = Game(null);
+    final game0 = Game(SqfliteDatabaseWrapper(null));
     const pureBlack0 = false;
     final world0 = World(null, ThemeMode.light, pureBlack0, Future.value(game0));
     await tester.pumpWidget(MyApp(world0, game0));

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart' show listEquals, ChangeNotifier;
-import 'package:sqflite/sqflite.dart';
 import 'package:everest/expressions.dart';
+import 'package:everest/storage.dart';
 import 'package:flutter/widgets.dart';
 
 const debugUnlockAll = false;
@@ -400,7 +400,7 @@ class Game with ChangeNotifier {
     ]),
   ];
 
-  final Database? db;
+  final DatabaseWrapper db;
   int _inputCount = 0;
   int _doStatusAnimationAtCount = -1;
   int _doScrollAtCount = -1;
@@ -472,7 +472,7 @@ class Game with ChangeNotifier {
       }
     } // else this exam is not yet unlocked, so we ignore the input (relevant for exam 1 only)
     notifyListeners();
-    storeAnswer(l, q).then((_) => storeLevelsUnlocked());  // asynchronous (order of database store events is not that important)
+    db.storeAnswer(l, q).then((_) => storeLevelsUnlocked());  // asynchronous (order of database store events is not that important)
     return KeyEventResult.handled;
   }
 
@@ -556,46 +556,10 @@ class Game with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> storeAnswer(Level level, Question question) async {
-    await db?.insert(tableAnswers, question.toMap(level), conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  Future<Map<String, String>> loadAnswers() async {
-    if (db != null) {
-      List<Map> maps = await (db!.query(tableAnswers, columns: [columnId, columnInputs]));
-      // map from fullId to stringified answer
-      return Map.fromEntries(maps.expand((m) {
-        final id = m[columnId];
-        final answer = m[columnInputs];
-        return (id == null || answer == null) ? [] : [MapEntry(id , answer)];
-      }));
-    } else {
-      return Future.value({});
-    }
-  }
-
-  Future<String?> loadKeyValue(String key) async {
-    if (db != null) {
-      List<Map> maps = await db!.query(tableKV,
-        where: '$columnKey = ?',
-        whereArgs: [key],
-      );
-      return maps.isNotEmpty ? maps.first[columnValue] : null;
-    } else {
-      return null;
-    }
-  }
-
-  Future<void> storeKeyValue(String key, String value) async {
-    if (db != null) {
-      await db!.insert(tableKV, {columnKey: key, columnValue: value}, conflictAlgorithm: ConflictAlgorithm.replace);
-    }
-  }
-
   Future<void> recomputeExamsState() async {
     // we store and load the id instead of the index to handle new levels
     // inserted before the currently unlocked level
-    final levelId = await loadKeyValue(levelsUnlockedKey);
+    final levelId = await db.loadKeyValue(levelsUnlockedKey);
     for (var i = 0; i < levels.length; i++) {
       Level l = levels[i];
       // restore activeExamQuestion
@@ -625,20 +589,18 @@ class Game with ChangeNotifier {
 
   Future<void> storeLevelsUnlocked() {
     final levelId = levels[levelsUnlocked < levels.length ? levelsUnlocked : levels.length - 1].id;
-    return storeKeyValue(levelsUnlockedKey, levelId);
+    return db.storeKeyValue(levelsUnlockedKey, levelId);
   }
 
   Future<void> resetProgress() async {
     levelsUnlocked = 0;
     await storeLevelsUnlocked();
-    if (db != null) {
-      await db!.delete(tableAnswers);
-    }
+    await db.deleteAnswers(levels);
   }
 
   Future<void> loadGameState() async {
     // initialization of state from database (to be called once for initialization)
-    final answers = await loadAnswers();
+    final answers = await db.loadAnswers(levels);
     for (final level in levels) {
       for (final question in level.exercise.questions.followedBy(level.exam.questions)) {
         final answer = answers[question.fullId(level)];
@@ -650,7 +612,7 @@ class Game with ChangeNotifier {
     await recomputeExamsState();
   }
 
-  static Future<Game> initializedGame(Database? db, {required bool loadProgress}) async {
+  static Future<Game> initializedGame(DatabaseWrapper db, {required bool loadProgress}) async {
     final game = Game(db);
     if (loadProgress) {
       await game.loadGameState();

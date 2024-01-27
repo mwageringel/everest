@@ -6,10 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:everest/game.dart';
+import 'package:everest/storage.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -524,7 +523,7 @@ class SettingsScreen extends StatelessWidget {
                   title: ThemeModeLabel(m),
                   onChanged: (mode) async {
                     world.switchTheme(themeMode: m);
-                    return game.storeKeyValue(themeModeKey, m.toString());
+                    return game.db.storeKeyValue(themeModeKey, m.toString());
                   },
                 ),
               )),
@@ -534,7 +533,7 @@ class SettingsScreen extends StatelessWidget {
                 value: world.pureBlack,
                 onChanged: (bool value) async {
                   world.switchTheme(pureBlack: value);
-                  return game.storeKeyValue(pureBlackKey, value.toString());
+                  return game.db.storeKeyValue(pureBlackKey, value.toString());
                 },
               ),
             ],
@@ -742,8 +741,8 @@ class ExamsScreen extends StatelessWidget {
     return Consumer<Game>(builder: (context, game, child) =>
       WillPopScope(
         onWillPop: () => (
-          // this asks for confirmation at back button press to avoid loss of state, when no database is available on web version
-          game.db != null ? Future.value(true) : showDialog<bool?>(
+          // this asks for confirmation at back button press to avoid loss of state, when no database is available on some platform
+          game.db.isUsable() ? Future.value(true) : showDialog<bool?>(
             context: context,
             builder: (context) => AlertDialog(
               title: Text(AppLocalizations.of(context)!.exitDialogTitle),
@@ -871,28 +870,7 @@ class World with ChangeNotifier {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Avoid errors caused by flutter upgrade.
-  Database? db;
-  if (!kIsWeb) {
-    try {
-      db = await openDatabase(
-        join(await getDatabasesPath(), 'everest-data.db'),
-        onCreate: (db, version) async {
-          // note that adding additional tables to existing database file requires some extra steps
-          await db.execute(
-            'CREATE TABLE $tableKV($columnKey TEXT PRIMARY KEY, $columnValue TEXT)',
-          );
-          await db.execute(
-            'CREATE TABLE $tableAnswers($columnId TEXT PRIMARY KEY, $columnLevel TEXT, $columnQuestion TEXT, $columnInputs TEXT)',
-          );
-        },
-        version: 1,
-      );
-    } on MissingPluginException {
-      db = null;  // database is not available for the web
-    }
-  } else {
-    db = null;  // database is not available for the web
-  }
+  DatabaseWrapper db = await DatabaseWrapper.create();
 
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('fonts/OFL.txt');
@@ -900,14 +878,14 @@ void main() async {
   });
 
   Future<ThemeMode> loadThemeMode(Game game) async {
-    String? mode = await game.loadKeyValue(themeModeKey);
+    String? mode = await game.db.loadKeyValue(themeModeKey);
     return ThemeMode.values.firstWhere((m) => m.toString() == mode, orElse: () => ThemeMode.system);
   }
 
   // loading the game from the database is quick, so we do it synchronously here, so that the initial render can already show the actual progress
   final game0 = await Game.initializedGame(db, loadProgress: true);
   final themeMode0 = await loadThemeMode(game0);
-  final pureBlack0 = (await game0.loadKeyValue(pureBlackKey)) == true.toString();  // false by default
+  final pureBlack0 = (await game0.db.loadKeyValue(pureBlackKey)) == true.toString();  // false by default
   final appInfo = await PackageInfo.fromPlatform();
   final world0 = World(appInfo, themeMode0, pureBlack0, Future.value(game0));
   runApp(MyApp(world0, game0));
