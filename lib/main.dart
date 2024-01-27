@@ -242,7 +242,7 @@ class QuestionsWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                TextSpan(text: q.substring(j+1)),
+                ...(q.length > j+1 ? [TextSpan(text: q.substring(j+1))] : []),
               ]),
               textScaleFactor: MediaQuery.of(context).textScaleFactor,  // for consistent font sizes with enlarged system font settings
             );
