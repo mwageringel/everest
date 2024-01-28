@@ -1,4 +1,5 @@
-FLUTTER=flutter
+# FLUTTER=flutter
+FLUTTER=./vendor/flutter/bin/flutter
 BASEHREF=/demo/
 
 all: app web
