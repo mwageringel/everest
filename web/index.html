@@ -55,7 +55,12 @@
           serviceWorkerVersion: serviceWorkerVersion,
         },
         onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
+          let config = {};  // auto-choose renderer
+          if (typeof WebAssembly !== "object") {
+            console.log(`Using html Flutter renderer instead of canvaskit, since WebAssembly not available.`);  // to avoid crash
+            config = { renderer: "html" };
+          }
+          engineInitializer.initializeEngine(config).then(function(appRunner) {
             appRunner.runApp();
           });
         }
