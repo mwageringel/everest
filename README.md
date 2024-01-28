@@ -8,7 +8,19 @@ A mathematical puzzle game. Try it at https://mwageringel.github.io/everest/
 
 ## Build dependencies
 
-Building with `make` requires `flutter, curl, rsvg-convert, imagemagick`.
+Building with `make` requires `curl, rsvg-convert, imagemagick` and optionally `flutter`.
+
+Either use the pinned version of Flutter (`./vendor/flutter/bin/flutter`):
+
+    git submodule update --init --recursive
+    make
+
+Or use the Flutter version installed on your system:
+
+    make FLUTTER=flutter
+
+(If you use Android Studio, make sure that `flutter.sdk` and the Android `sdk.dir`
+are set correctly in the untracked file `./android/local.properties`.)
 
 
 APK signing certificate fingerprint (SHA-256) of releases on GitHub:

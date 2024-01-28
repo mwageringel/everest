@@ -1,6 +1,6 @@
 // expression algebra with variables, constants and unary and binary operations.
 
-A _evalMult<A>(A left, A right) => (left as dynamic) * right;
+A _evalMult<A>(A left, A right) => ((left as dynamic) * right) as A;
 
 typedef EvalContext = Map<Var<dynamic>, dynamic>;  // all our variables will have type parameter F
 
@@ -11,11 +11,11 @@ abstract class Expression<A> {
   @override toString() => str({});
 
   Expression<bool>      eq(Expression<A> other) => Bin(this, other, str: (s, t) => '$s = $t', eval: (a, b) => (a as dynamic).pow(1331) == (b as dynamic).pow(p));
-  Expression<A> operator +(Expression<A> other) => Bin(this, other, str: (s, t) => '$s + $t', eval: (a, b) => (a as dynamic) + b);
-  Expression<A> operator -(Expression<A> other) => Bin(this, other, str: (s, t) => '$s - $t', eval: (a, b) => (a as dynamic) - b);
+  Expression<A> operator +(Expression<A> other) => Bin(this, other, str: (s, t) => '$s + $t', eval: (a, b) => ((a as dynamic) + b) as A);
+  Expression<A> operator -(Expression<A> other) => Bin(this, other, str: (s, t) => '$s - $t', eval: (a, b) => ((a as dynamic) - b) as A);
   Expression<A> operator *(Expression<A> other) => Bin(this, other, str: (s, t) => '$s * $t', eval: _evalMult);
-  Expression<A> operator /(Expression<A> other) => Bin(this, other, str: (s, t) => '$s / $t', eval: (a, b) => (a as dynamic) / b);
-  Expression<A> operator -() => Unary(this, str: (s) => '-$s', eval: (a) => -(a as dynamic));
+  Expression<A> operator /(Expression<A> other) => Bin(this, other, str: (s, t) => '$s / $t', eval: (a, b) => ((a as dynamic) / b) as A);
+  Expression<A> operator -() => Unary(this, str: (s) => '-$s', eval: (a) => -(a as dynamic) as A);
   Expression<A> square() => Unary(this, str: (s) => '$s²', eval: (A a) => _evalMult(a, a));
   // Expression<A> paren() => Unary(this, str: (s) => '($s)', eval: (A a) => a);  // not needed yet
 }
@@ -27,7 +27,7 @@ class Var<A> extends Expression<A> {
     if (a == null) {
       throw UnsupportedError('can only evaluate variables in vars context');
     } else {
-      return a;
+      return a as A;
     }
   }
 }

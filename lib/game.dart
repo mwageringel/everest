@@ -26,7 +26,7 @@ QuestionsStatus jointStatus(Iterable<Question> questions) {
 
 class Question {
   final Expression<bool> expr;
-  final List<Var> vars;
+  final List<Var<dynamic>> vars;
   late final String q;  // pretty representation
   late final String id;  // more canonical representation for database
   List<String>? _cachedSolution;

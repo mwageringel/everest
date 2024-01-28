@@ -27,3 +27,14 @@ linter:
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+
+
+# Exclude, in particular, huge `vendor/flutter` library from analysis.
+analyzer:
+  exclude:
+  - build/**
+  - vendor/**
+  - .dart_tool/**
+  language:
+    strict-casts: true
+    strict-raw-types: true
