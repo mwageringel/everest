@@ -216,7 +216,7 @@ class QuestionsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = jointStatus(questions);  // TODO cache this?
     final c = Column(children: [
-      ...Iterable.generate(questions.length).map<Widget>((i) {
+      ...Iterable<Widget>.generate(questions.length, (i) {
         // the following is more direct than expr.str() and works since all variables appear exactly once from left to right
         final q = questions[i].inputs.fold<String>(questions[i].q, (q, s) => q.replaceFirst('?', s));
         Widget? t;

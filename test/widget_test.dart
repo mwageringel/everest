@@ -5,7 +5,7 @@ import 'package:everest/main.dart';
 import 'package:everest/game.dart';
 import 'package:everest/storage.dart';
 
-findKeypad(String n) => find.descendant(of: find.byType(KeyboardButton), matching: find.text(n));
+FinderBase<Element> findKeypad(String n) => find.descendant(of: find.byType(KeyboardButton), matching: find.text(n));
 
 void main() {
   test('debug mode disabled', () {

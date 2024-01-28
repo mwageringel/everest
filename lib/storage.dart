@@ -57,12 +57,12 @@ class SqfliteDatabaseWrapper extends DatabaseWrapper {
   @override
   Future<Map<String, String>> loadAnswers(List<Level> levels) async {
     if (db != null) {
-      List<Map> maps = await (db!.query(tableAnswers, columns: [columnId, columnInputs]));
+      List<Map<dynamic, dynamic>> maps = await (db!.query(tableAnswers, columns: [columnId, columnInputs]));
       // map from fullId to stringified answer
       return Map.fromEntries(maps.expand((m) {
         final id = m[columnId];
         final answer = m[columnInputs];
-        return (id == null || answer == null) ? [] : [MapEntry(id , answer)];
+        return (id != null && answer != null && id is String && answer is String) ? [MapEntry(id, answer)] : [];
       }));
     } else {
       return Future.value({});
@@ -79,11 +79,12 @@ class SqfliteDatabaseWrapper extends DatabaseWrapper {
   @override
   Future<String?> loadKeyValue(String key) async {
     if (db != null) {
-      List<Map> maps = await db!.query(tableKV,
+      List<Map<dynamic, dynamic>> maps = await db!.query(tableKV,
         where: '$columnKey = ?',
         whereArgs: [key],
       );
-      return maps.isNotEmpty ? maps.first[columnValue] : null;
+      final result = maps.isNotEmpty ? maps.first[columnValue] : null;
+      return result is String ? result : null;
     } else {
       return null;
     }
@@ -115,8 +116,8 @@ class WebStorageDatabaseWrapper extends DatabaseWrapper {
         final id = question.fullId(level);
         dynamic m = storage.getItem(id);
         if (m != null && m[columnId] != null) {
-          String? answer = m[columnInputs] is String ? m[columnInputs] : null;
-          if (answer != null) {
+          final answer = m[columnInputs];
+          if (answer != null && answer is String) {
             result[id] = answer;
           }
         }
