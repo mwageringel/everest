@@ -481,10 +481,11 @@ class MoreInfoMessage extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final TextStyle textStyle = theme.textTheme.bodyMedium!;
     final Uri url = Uri.parse('https://mwageringel.github.io/everest/');
+    final List<String> textFragments = AppLocalizations.of(context)!.moreInfo('__URL__').split('__URL__');  // fragments before and after the url
     return Text.rich( // important for vertical alignment
       TextSpan(
         children: <InlineSpan>[
-          TextSpan(style: textStyle, text: AppLocalizations.of(context)!.moreInfo),
+          ...(textFragments.isNotEmpty && textFragments[0].isNotEmpty ? [TextSpan(style: textStyle, text: textFragments[0])] : []),
           WidgetSpan(
             child: Link(
               uri: url,
@@ -495,6 +496,7 @@ class MoreInfoMessage extends StatelessWidget {
               ),
             ),
           ),
+          ...(textFragments.length > 1 && textFragments[1].isNotEmpty ? [TextSpan(style: textStyle, text: textFragments[1])] : []),
         ],
       ),
     );
@@ -563,7 +565,7 @@ class SettingsScreen extends StatelessWidget {
         const MyDivider(),
         AboutListTile(
           icon: const Icon(Icons.info_outline),
-          applicationVersion: "${AppLocalizations.of(context)!.version} ${Provider.of<World>(context).appInfo?.version}",
+          applicationVersion: AppLocalizations.of(context)!.version(Provider.of<World>(context).appInfo?.version),
           aboutBoxChildren: const [
             MoreInfoMessage(),
           ],
@@ -649,7 +651,7 @@ class ExamWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = '${AppLocalizations.of(context)!.levelTitle} $levelIdx';
+    final label = AppLocalizations.of(context)!.levelTitle(levelIdx);
     return Column(
       children: [
         if (levelIdx > 0) const MyDivider(),
