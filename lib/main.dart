@@ -237,13 +237,13 @@ class QuestionsWidget extends StatelessWidget {
                     ),
                     child: Text(q.substring(j, j+1),
                       style: _biggerFontMath,
-                      textScaleFactor: 1.0,  // important in order to avoid scaling twice with enlarged system font settings
+                      textScaler: TextScaler.noScaling,  // important in order to avoid scaling twice with enlarged system font settings
                     ),
                   ),
                 ),
                 ...(q.length > j+1 ? [TextSpan(text: q.substring(j+1))] : []),
               ]),
-              textScaleFactor: MediaQuery.of(context).textScaleFactor,  // for consistent font sizes with enlarged system font settings
+              textScaler: MediaQuery.textScalerOf(context),  // for consistent font sizes with enlarged system font settings
             );
           }
         }
