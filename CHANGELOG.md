@@ -1,6 +1,18 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Italian translation (by @gabriblas)
+- the web version now saves the progress (works on iOS, as well) (#26)
+
+### Changed
+- upgraded to Flutter 3.16.9; the Flutter version is now pinned in a submodule
+
+### Fixed
+- a UI issue affecting the html renderer of mobile browsers in which the focussed question was vertically displaced
+- a UI issue in which the scroll animation could be triggered incorrectly
+- an issue that could affect mobile browsers without WebAssembly support
+- a rendering issue affecting LineageOS (#17)
 
 ## [1.1.5] - 2022-09-19
 ### Added

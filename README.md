@@ -8,7 +8,7 @@ A mathematical puzzle game. Try it at https://mwageringel.github.io/everest/
 
 ## Build dependencies
 
-Building with `make` requires `curl, rsvg-convert, imagemagick` and optionally `flutter`.
+Building with `make` requires `curl, rsvg-convert, imagemagick, java 17+` and optionally `flutter`.
 
 Either use the pinned version of Flutter (`./vendor/flutter/bin/flutter`):
 
