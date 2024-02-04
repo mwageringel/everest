@@ -114,7 +114,7 @@ flutter:
     # license for Noto fonts
     - fonts/OFL.txt
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: false
   image_path: assets/launcher_icon.png
