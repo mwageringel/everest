@@ -39,6 +39,6 @@ APK signing certificate fingerprint (SHA-256) of releases on GitHub:
 
 Thanks to all the contributors.
 Additional translations are welcome – these are the files to translate:
-- [metadata/en-US/full_description.txt](metadata/en-US/full_description.txt)
+- [metadata/en-US/full_description.txt](metadata/en-US/full_description.txt) ([IETF language tag](https://en.wikipedia.org/wiki/IETF_language_tag))
 - [metadata/en-US/short_description.txt](metadata/en-US/short_description.txt)
-- [lib/l10n/app_en.arb](lib/l10n/app_en.arb)
+- [lib/l10n/app_en.arb](lib/l10n/app_en.arb) ([ISO 639 language code](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes))
