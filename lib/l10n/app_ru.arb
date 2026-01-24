@@ -1,0 +1,21 @@
+
+{
+    "settings": "Настройки",
+    "theme": "Тема",
+    "themeSystem": "Системная тема",
+    "themeLight": "Светлая",
+    "themeDark": "Тёмная",
+    "darkThemeBlackBackground": "Черный фон в темной теме",
+    "darkThemeBlackBackgroundSubtitle": "Предназначено, в основном, для экранов OLED",
+    "restart": "Перезагрузка",
+    "restartSubtitle": "Длительное нажатие для сброса прогресса",
+    "version": "Версия {label}",
+    "moreInfo": "Больше информации на {url}",
+    "levelTitle": "Уровень {number}",
+    "endMessage": "Поздравляем!",
+    "extendedMessage": "0J7RgtC70LjRh9C90L7QtSDQtNC+0YHRgtC40LbQtdC90LjQtSEg0JLRiyDQuNGB0YHQu9C10LTQvtCy0LDQu9C4INCw0YDQuNGE0LzQtdGC0LjQutGDINC60L7QvdC10YfQvdGL0YUg0L/QvtC70LXQuSDRgSAxMSDQuCAxMjEg0Y3Qu9C10LzQtdC90YLQsNC80LguICjQl9Cw0LzQtdGC0LjQu9C4INGB0YXQvtC00YHRgtCy0L4g0YEg0LrQvtC80L/Qu9C10LrRgdC90YvQvNC4INGH0LjRgdC70LDQvNC4Pyk=",
+    "exitDialogTitle": "Сохранение недоступно.",
+    "exitDialogContent": "Весь прогресс будет потерян, если вы выйдете из игры. Продолжить?",
+    "dialogCancel": "Отмена",
+    "dialogOk": "ОК"
+}

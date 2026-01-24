@@ -34,6 +34,7 @@ APK signing certificate fingerprint (SHA-256) of releases on GitHub:
 - French
 - German
 - Italian
+- Russian
 - Spanish
 - Ukrainian
 
